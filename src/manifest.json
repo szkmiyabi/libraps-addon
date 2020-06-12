@@ -1,0 +1,21 @@
+{
+    "manifest_version": 2,
+    "name": "libraps-addon",
+    "version": "0.0.0",
+    "description": "this addon is the LibraPlus utility.",
+    "icons": {
+        "48": "icons/libraps-icon.png"
+    },
+    "permission": [
+        "activeTab"
+    ],
+    "page_action": {
+        "browser_style": true,
+        "default_icon": {
+            "19": "icons/libraps-icon-19.png",
+            "38": "icons/libraps-icon-38.png"
+        },
+        "default_title": "LibraPlus Utility",
+        "default_popup": "popup/choose.html"
+    }
+}

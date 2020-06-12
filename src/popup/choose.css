@@ -1,0 +1,12 @@
+html, body {
+    width: 360px;
+}
+
+#popup-content {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#popup-content div {
+    margin-right: 10px;
+}
