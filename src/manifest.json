@@ -6,8 +6,18 @@
     "icons": {
         "48": "icons/libraps-icon.png"
     },
+    "background": {
+        "scripts": ["background.js"]
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["/action.js"]
+        }
+    ],
     "permission": [
-        "activeTab"
+        "<all_urls>",
+        "tabs"
     ],
     "page_action": {
         "browser_style": true,
