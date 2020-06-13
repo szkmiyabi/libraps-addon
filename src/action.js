@@ -1,71 +1,244 @@
-class presvUtil {
+class libraPlusUtil {
+	/*-----------------------------------------
+		コンストラクタ
+	-------------------------------------------*/
+	constructor() {
+		this.url = window.location.href;
+		this.result = document.querySelector('select[id^="result_"]');
+		this.comment = document.querySelector('textarea[id^="comment"]');
+		this.description = document.querySelector('textarea[id^="src_"]');
+		this.srccode = document.querySelector('textarea[id^="updsrc_"]');
+		this.save_survey_btn = document.querySelector('button[name="update"]');
+		this.hash = {
+			"0": "未判定",
+			"1": "はい",
+			"9": "はい(注記)",
+			"2": "いいえ",
+			"3": "なし"
+		};
+		this.tab_sp = "<bkmk:tab>";
+		this.br_sp = "<bkmk:br>";
+	}
 
-    css_cut() {
-        var d = document;
-        var delarr = new Array();
-        var links = d.getElementsByTagName("link");
-        for(var i=0; i<links.length; i++) {
-            var link = links.item(i);
-            var href = link.getAttribute("href");
-            if(is_css_file(href) || is_css_link(link)) {
-                delarr.push(href);
-            }
-        }
-        for(var i=0; i<delarr.length; i++) {
-            var line = delarr[i];
-            delete_link(line);
-        }
-        var tags = d.getElementsByTagName("*");
-        for(var i=0; i<tags.length; i++) {
-            var tag = tags.item(i);
-            var style = tag.getAttribute("style");
-            if(style !== null || style !== "") {
-                tag.removeAttribute("style");
-            }
-        }
-        var styles = d.getElementsByTagName("style");
-        for(i=0; i<styles.length; i++) {
-            var style = styles.item(i);
-            style.textContent = null;
-        }
-        function is_css_file(href) {
-            var pat = new RegExp(".+\.css");
-            if(pat.test(href)) return true;
-            else return false;
-        }
-        function is_css_link(link) {
-            if(link.hasAttribute("type")) {
-                var pat = new RegExp("text/css");
-                var type = link.getAttribute("type");
-                if(pat.test(type)) return true;
-                else return false;
-            } else {
-                return false;
-            }
-        }
-        function delete_link(line) {
-            var lks = d.getElementsByTagName("link");
-            for(var j=0; j<lks.length; j++) {
-                var lk = lks.item(j);
-                var hf = lk.getAttribute("href");
-                if(hf === line) {
-                    lk.parentNode.removeChild(lk);
-                    break;
-                }
-            }
-        }
-    }
+	/*-----------------------------------------
+		commonメソッド
+	-------------------------------------------*/
+	text_clean(str) {
+	    str=str.replace(/^ +/m,"");
+	    str=str.replace(/\t+/m,"");
+	    str=str.replace(/(\r\n|\r|\n)/g,""); 
+	    return str;
+	}
+
+	br_encode(str) {
+		return str.replace(/(\r|\n|\r\n)/mg, this.br_sp);
+	}
+
+	br_decode(str) {
+		return str.replace(new RegExp(this.br_sp, "mg"), "\r\n");
+	}
+
+	get_safe_value(val) {
+		if(typeof val === "undefined")
+			return "";
+		else
+			return val;
+	}
+
+	is_main_page() {
+		var pat = new RegExp(/\/inspect\/start\/index\//);
+		if(pat.test(this.url)) return true;
+		else return false;
+	}
+
+	is_diag_page() {
+		var pat = new RegExp(/\/inspect\/chkpoint\/list\//);
+		if(pat.test(this.url)) return true;
+		else return false;
+	}
+
+	/*-----------------------------------------
+		判定ダイアログメソッド一式
+	-------------------------------------------*/
+	get_survey() {
+		var key = "";
+		var opts = this.result.getElementsByTagName("option");
+		var idx = this.result.selectedIndex;
+		for(var i=0; i<opts.length; i++) {
+			var opt = opts[i];
+			if(i == idx) {
+				key = opt.value;
+				break;
+			}
+		}
+		if(key != "")
+			return this.hash[key];
+		else
+			return "";
+	}
+
+	get_survey_key(key_val) {
+		var ret_key = "";
+		for(var key in this.hash) {
+			var val = this.hash[key];
+			if(key_val == val) {
+				ret_key = key;
+				break;
+			}
+		}
+		return ret_key;
+	}
+
+	get_comment() {
+		return this.comment.value;
+	}
+
+	get_description() {
+		return this.description.value;
+	}
+
+	get_srccode() {
+		return this.srccode.value;
+	}
+
+	set_survey(flag) {
+		var key = this.get_survey_key(flag);
+		var opts = this.result.getElementsByTagName("option");
+		for(var i=0; i<opts.length; i++) {
+			var opt = opts[i];
+			if(opt.value == key) {
+				this.result.selectedIndex = i;
+				break;
+			}
+		}
+	}
+
+	set_comment(str) {
+		this.comment.value = str;
+	}
+
+	set_description(str) {
+		this.description.value = str;
+	}
+
+	set_srccode(str) {
+		this.srccode.value = str;
+	}
+
+	save_survey() {
+		this.save_survey_btn.click();
+	}
+
+	diag_clean(flag) {
+		switch(flag) {
+			case "はい":
+				this.set_comment("");
+				this.set_srccode("");
+				break;
+			case "なし":
+				this.set_comment("");
+				this.set_description("");
+				this.set_srccode("");
+				break;
+		}
+	}
+
+	/*-----------------------------------------
+		判定ダイアログ拡張メソッド一式
+	-------------------------------------------*/
+	survey_OK() {
+		this.set_survey("はい");
+		this.diag_clean("はい");
+	}
+
+	survey_OK2() {
+		this.set_survey("はい(注記)");
+	}
+
+	survey_NA() {
+		this.set_survey("なし");
+		this.diag_clean("なし");
+	}
+
+	survey_copy() {
+		var txt = "";
+		var str_tech = "any";
+		var str_sv_cp = "any";
+		var str_sv = this.get_survey();
+		var str_comment = this.br_encode(this.get_comment());
+		var str_description = this.br_encode(this.get_description());
+		var str_srccode = this.br_encode(this.get_srccode());
+		txt = str_tech + this.tab_sp + str_sv + this.tab_sp + str_sv_cp + this.tab_sp + "who" + this.tab_sp;
+		txt += str_comment + this.tab_sp + str_description + this.tab_sp + str_srccode;
+		prompt("Ctrl+Cでコピーしてください。", txt);
+	}
+
+	survey_paste() {
+		var src = prompt("コピーしたデータを貼り付けてください");
+		src = src.trim();
+		var arr = this.survey_paste_data_bind(src);
+		var sv = arr[0];
+		this.set_survey(sv);
+		this.set_comment(arr[2]);
+		this.set_description(arr[3]);
+		this.set_srccode(arr[4]);
+	}
+
+	survey_paste_bkmk = function() {
+		var src = prompt("コピーしたデータを貼り付けてください");
+		src = src.trim();
+		var arr = this.survey_paste_data_bind(src);
+		var sv = arr[0];
+		this.set_survey(sv);
+		this.set_comment(arr[2]);
+		this.set_description(arr[3]);
+		this.set_srccode(arr[4]);
+	}
+
+	survey_paste_data_bind(data) {
+		var arr = new Array();
+		var str_sv = "";
+		var str_sv_cp = "any";
+		var str_comment = "";
+		var str_description = "";
+		var str_srccode = "";
+		var tmp = data.split(this.tab_sp);
+		if(tmp != null) {
+			str_sv = tmp[1].toString().trim();
+			if(str_sv_cp === "") str_sv_cp = "no";
+			str_comment = this.br_decode(this.get_safe_value(tmp[4]));
+			str_description = this.br_decode(this.get_safe_value(tmp[5]));
+			str_srccode = this.br_decode(this.get_safe_value(tmp[6]));
+			arr.push(str_sv);
+			arr.push(str_sv_cp);
+			arr.push(str_comment);
+			arr.push(str_description);
+			arr.push(str_srccode);
+			return arr;
+		} else {
+			return null;
+		}
+	}
 }
 
+const util = new libraPlusUtil();
 
-const util = new presvUtil();
 browser.runtime.onMessage.addListener((message) => {
 
     let cmd = message.command;
 
     switch(cmd) {
-        case "csscut":
-            util.css_cut();
+        case "svok":
+            util.survey_OK();
+            break;
+        case "svna":
+            util.survey_NA();
+            break;
+        case "copy":
+            util.survey_copy();
+            break;
+        case "paste":
+            util.survey_paste();
             break;
     }
 });

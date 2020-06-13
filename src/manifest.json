@@ -20,7 +20,7 @@
         "tabs"
     ],
     "page_action": {
-        "browser_style": true,
+        "browser_style": false,
         "default_icon": {
             "19": "icons/libraps-icon-19.png",
             "38": "icons/libraps-icon-38.png"
