@@ -17,7 +17,9 @@ class libraPlusUtil {
 			"3": "なし"
 		};
 		this.tab_sp = "<bkmk:tab>";
-		this.br_sp = "<bkmk:br>";
+        this.br_sp = "<bkmk:br>";
+        this.status_page_url = "/libraplus/status/list/";
+        this.url_select = document.querySelector('#select_urlno');
 	}
 
 	/*-----------------------------------------
@@ -55,7 +57,13 @@ class libraPlusUtil {
 		var pat = new RegExp(/\/inspect\/chkpoint\/list\//);
 		if(pat.test(this.url)) return true;
 		else return false;
-	}
+    }
+    
+    event_ignite(obj, type) {
+        var event = document.createEvent("HTMLEvents");
+        event.initEvent(type, true, false);
+        obj.dispatchEvent(event);
+    }
 
 	/*-----------------------------------------
 		判定ダイアログメソッド一式
@@ -218,7 +226,33 @@ class libraPlusUtil {
 		} else {
 			return null;
 		}
-	}
+    }
+    
+    status_page() {
+        window.open(this.status_page_url, "_blank");
+    }
+
+    svpage_next() {
+        var idx = this.url_select.selectedIndex;
+        idx++;
+        if(idx == this.url_select.options.length) {
+            alert("これ以上進めません!");
+            return;
+        }
+        this.url_select.selectedIndex = idx;
+        this.event_ignite(this.url_select, "change");
+    }
+
+    svpage_prev() {
+        var idx = this.url_select.selectedIndex;
+        idx--;
+        if(idx < 0) {
+            alert("これ以上戻れません!");
+            return;
+        }
+        this.url_select.selectedIndex = idx;
+        this.event_ignite(this.url_select, "change");
+    }
 }
 
 const util = new libraPlusUtil();
@@ -228,6 +262,12 @@ browser.runtime.onMessage.addListener((message) => {
     let cmd = message.command;
 
     switch(cmd) {
+        case "next":
+            util.svpage_next();
+            break;
+        case "prev":
+            util.svpage_prev();
+            break;
         case "svok":
             util.survey_OK();
             break;
@@ -239,6 +279,9 @@ browser.runtime.onMessage.addListener((message) => {
             break;
         case "paste":
             util.survey_paste();
+            break;
+        case "status":
+            util.status_page();
             break;
     }
 });
