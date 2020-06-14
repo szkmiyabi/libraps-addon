@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "libraps-addon",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "description": "this addon is the LibraPlus utility.",
     "icons": {
         "48": "icons/libraps-icon.png"

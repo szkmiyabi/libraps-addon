@@ -1,6 +1,6 @@
   
 html, body {
-    width: 360px;
+    width: 450px;
 }
 
 #popup-content {
@@ -10,10 +10,6 @@ html, body {
 
 #popup-content div {
     margin-right: 10px;
-}
-
-#popup-content div:nth-child(5) {
-    margin-right: 0;
 }
 
 #popup-content div i {

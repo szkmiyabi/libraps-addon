@@ -58,6 +58,16 @@ document.getElementById("paste").addEventListener("click", (e) => {
     .catch(console.error("error"));
 });
 
+document.getElementById("bookmarklet").addEventListener("click", (e) => {
+    browser.tabs.query({active: true, currentWindow: true})
+    .then((tabs) => {
+        browser.tabs.sendMessage(tabs[0].id, {
+            command: "bookmarklet"
+        });
+    })
+    .catch(console.error("error"));
+});
+
 document.getElementById("status").addEventListener("click", (e) => {
     browser.tabs.query({active: true, currentWindow: true})
     .then((tabs) => {

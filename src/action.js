@@ -4,7 +4,7 @@ class libraPlusUtil {
 	-------------------------------------------*/
 	constructor() {
 		this.url = window.location.href;
-		this.result = document.querySelector('select[id^="result_"]');
+		this.result = document.querySelectorAll('select[id^="result_"]');
 		this.comment = document.querySelector('textarea[id^="comment"]');
 		this.description = document.querySelector('textarea[id^="src_"]');
 		this.srccode = document.querySelector('textarea[id^="updsrc_"]');
@@ -69,20 +69,26 @@ class libraPlusUtil {
 		判定ダイアログメソッド一式
 	-------------------------------------------*/
 	get_survey() {
-		var key = "";
-		var opts = this.result.getElementsByTagName("option");
-		var idx = this.result.selectedIndex;
-		for(var i=0; i<opts.length; i++) {
-			var opt = opts[i];
-			if(i == idx) {
-				key = opt.value;
-				break;
+		var survey_str = "";
+		for(var i=0; i<this.result.length; i++) {
+			var key = "";
+			var opts = this.result[i].getElementsByTagName("option");
+			var idx = this.result[i].selectedIndex;
+			for(var j=0; j<opts.length; j++) {
+				var opt = opts[j];
+				if(j == idx) {
+					key = opt.value;
+					break;
+				}
 			}
+			if(key != "")
+				survey_str += this.hash[key];
+			else
+				survey_str += "";
+			if(i != (this.result.length - 1))
+				survey_str += "/";
 		}
-		if(key != "")
-			return this.hash[key];
-		else
-			return "";
+		return survey_str;
 	}
 
 	get_survey_key(key_val) {
@@ -110,13 +116,16 @@ class libraPlusUtil {
 	}
 
 	set_survey(flag) {
-		var key = this.get_survey_key(flag);
-		var opts = this.result.getElementsByTagName("option");
-		for(var i=0; i<opts.length; i++) {
-			var opt = opts[i];
-			if(opt.value == key) {
-				this.result.selectedIndex = i;
-				break;
+		var flag_arr = flag.split(/\//mg);
+		for(var i=0; i<this.result.length; i++) {
+			var key = this.get_survey_key(flag_arr[i]);
+			var opts = this.result[i].getElementsByTagName("option");
+			for(var j=0; j<opts.length; j++) {
+				var opt = opts[j];
+				if(opt.value == key) {
+					this.result[i].selectedIndex = j;
+					break;
+				}
 			}
 		}
 	}
@@ -155,16 +164,34 @@ class libraPlusUtil {
 		判定ダイアログ拡張メソッド一式
 	-------------------------------------------*/
 	survey_OK() {
-		this.set_survey("はい");
+		var flag = "";
+		for(var i=0; i<this.result.length; i++) {
+			flag += "はい";
+			if(i != (this.result.length - 1))
+				flag += "/";
+		}
+		this.set_survey(flag);
 		this.diag_clean("はい");
 	}
 
 	survey_OK2() {
-		this.set_survey("はい(注記)");
+		var flag = "";
+		for(var i=0; i<this.result.length; i++) {
+			flag += "はい(注記)";
+			if(i != (this.result.length - 1))
+				flag += "/";
+		}
+		this.set_survey(flag);
 	}
 
 	survey_NA() {
-		this.set_survey("なし");
+		var flag = "";
+		for(var i=0; i<this.result.length; i++) {
+			flag += "なし";
+			if(i != (this.result.length - 1))
+				flag += "/";
+		}
+		this.set_survey(flag);
 		this.diag_clean("なし");
 	}
 
@@ -192,7 +219,7 @@ class libraPlusUtil {
 		this.set_srccode(arr[4]);
 	}
 
-	survey_paste_bkmk = function() {
+	survey_paste_bkmk() {
 		var src = prompt("コピーしたデータを貼り付けてください");
 		src = src.trim();
 		var arr = this.survey_paste_data_bind(src);
@@ -226,7 +253,12 @@ class libraPlusUtil {
 		} else {
 			return null;
 		}
-    }
+	}
+	
+	bookmarklet() {
+		var src = prompt("コピーしたブックマークレットを貼り付けてください");
+		eval(src);
+	}
     
     status_page() {
         window.open(this.status_page_url, "_blank");
@@ -252,7 +284,8 @@ class libraPlusUtil {
         }
         this.url_select.selectedIndex = idx;
         this.event_ignite(this.url_select, "change");
-    }
+	}
+
 }
 
 const util = new libraPlusUtil();
@@ -269,19 +302,24 @@ browser.runtime.onMessage.addListener((message) => {
             util.svpage_prev();
             break;
         case "svok":
-            util.survey_OK();
+			util.survey_OK();
+			util.save_survey();
             break;
         case "svna":
-            util.survey_NA();
+			util.survey_NA();
+			util.save_survey();
             break;
         case "copy":
             util.survey_copy();
             break;
         case "paste":
             util.survey_paste();
-            break;
+			break;
+		case "bookmarklet":
+			util.bookmarklet();
+			break;
         case "status":
             util.status_page();
-            break;
+			break;
     }
 });
