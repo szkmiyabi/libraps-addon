@@ -4,6 +4,7 @@ class libraPlusUtil {
 	-------------------------------------------*/
 	constructor() {
 		this.url = window.location.href;
+		this.diag_tbl = document.querySelector('#cmtTable');
 		this.result = document.querySelectorAll('select[id^="result_"]');
 		this.comment = document.querySelector('textarea[id^="comment"]');
 		this.description = document.querySelector('textarea[id^="src_"]');
@@ -20,11 +21,76 @@ class libraPlusUtil {
         this.br_sp = "<bkmk:br>";
         this.status_page_url = "/libraplus/status/list/";
         this.url_select = document.querySelector('#select_urlno');
+
 	}
 
 	/*-----------------------------------------
 		commonメソッド
 	-------------------------------------------*/
+	cursoled_obj() {
+		return document.activeElement;
+	}
+
+	parent_tr(obj) {
+		var parent = null;
+		try { parent = obj.parentElement; } catch(e) { return obj; }
+		if(obj.tagName.toString() == "TR")
+			return obj;
+		else
+			return this.parent_tr(parent);
+	}
+
+	is_body(obj) {
+		if(obj.tagName.toString() == "BODY")
+			return true;
+		else
+			return false;
+	}
+
+	diag_ta_group_count() {
+		return this.diag_tbl.querySelectorAll('textarea[id^="comment"]').length;
+	}
+
+	m_result() {
+		var parent = null;
+		if(this.cursoled_obj() == null || this.is_body(this.cursoled_obj())) {
+			if(this.diag_ta_group_count() == 1)
+				parent = document;
+			else
+				parent = this.diag_tbl.getElementsByTagName("tr")[1];
+		} else {
+			parent = this.parent_tr(this.cursoled_obj());
+		}
+		return parent.querySelectorAll('select[id^="result_"]');
+	}
+
+	m_comment() {
+		var parent = null;
+		if(this.cursoled_obj() == null || this.is_body(this.cursoled_obj()))
+			parent = document;
+		else
+			parent = this.parent_tr(this.cursoled_obj());
+		return parent.querySelector('textarea[id^="comment"]');
+	}
+
+	m_description() {
+		var parent = null;
+		if(this.cursoled_obj() == null || this.is_body(this.cursoled_obj()))
+			parent = document;
+		else
+			parent = this.parent_tr(this.cursoled_obj());
+		return parent.querySelector('textarea[id^="src_"]')
+	}
+
+	m_srccode() {
+		var parent = null;
+		if(this.cursoled_obj() == null || this.is_body(this.cursoled_obj()))
+			parent = document;
+		else
+			parent = this.parent_tr(this.cursoled_obj());
+		return parent.querySelector('textarea[id^="updsrc_"]')
+	}
+
 	text_clean(str) {
 	    str=str.replace(/^ +/m,"");
 	    str=str.replace(/\t+/m,"");
@@ -70,10 +136,11 @@ class libraPlusUtil {
 	-------------------------------------------*/
 	get_survey() {
 		var survey_str = "";
-		for(var i=0; i<this.result.length; i++) {
+		var results = this.m_result();
+		for(var i=0; i<results.length; i++) {
 			var key = "";
-			var opts = this.result[i].getElementsByTagName("option");
-			var idx = this.result[i].selectedIndex;
+			var opts = results[i].getElementsByTagName("option");
+			var idx = results[i].selectedIndex;
 			for(var j=0; j<opts.length; j++) {
 				var opt = opts[j];
 				if(j == idx) {
@@ -85,7 +152,7 @@ class libraPlusUtil {
 				survey_str += this.hash[key];
 			else
 				survey_str += "";
-			if(i != (this.result.length - 1))
+			if(i != (results.length - 1))
 				survey_str += "/";
 		}
 		return survey_str;
@@ -104,26 +171,27 @@ class libraPlusUtil {
 	}
 
 	get_comment() {
-		return this.comment.value;
+		return this.m_comment().value;
 	}
 
 	get_description() {
-		return this.description.value;
+		return this.m_description().value;
 	}
 
 	get_srccode() {
-		return this.srccode.value;
+		return this.m_srccode().value;
 	}
 
 	set_survey(flag) {
 		var flag_arr = flag.split(/\//mg);
-		for(var i=0; i<this.result.length; i++) {
+		var results = this.m_result();		
+		for(var i=0; i<results.length; i++) {
 			var key = this.get_survey_key(flag_arr[i]);
-			var opts = this.result[i].getElementsByTagName("option");
+			var opts = results[i].getElementsByTagName("option");
 			for(var j=0; j<opts.length; j++) {
 				var opt = opts[j];
 				if(opt.value == key) {
-					this.result[i].selectedIndex = j;
+					results[i].selectedIndex = j;
 					break;
 				}
 			}
@@ -131,31 +199,67 @@ class libraPlusUtil {
 	}
 
 	set_comment(str) {
-		this.comment.value = str;
+		this.m_comment().value = str;
 	}
 
 	set_description(str) {
-		this.description.value = str;
+		this.m_description().value = str;
 	}
 
 	set_srccode(str) {
-		this.srccode.value = str;
+		this.m_srccode().value = str;
 	}
 
 	save_survey() {
 		this.save_survey_btn.click();
 	}
 
+	set_survey_all(flag) {
+		var all_results = document.querySelectorAll('select[id^="result_"]');
+		for(var i=0; i<all_results.length; i++) {
+			var key = this.get_survey_key(flag);
+			var opts = all_results[i].getElementsByTagName("option");
+			for(var j=0; j<opts.length; j++) {
+				var opt = opts[j];
+				if(opt.value == key) {
+					all_results[i].selectedIndex = j;
+					break;
+				}
+			}
+		}
+	}
+
+	set_comment_all(str) {
+		var all_comments = document.querySelectorAll('textarea[id^="comment"]');
+		for(var i=0; i<all_comments.length; i++) {
+			all_comments[i].value = str;
+		}
+	}
+
+	set_description_all(str) {
+		var all_descriptions = document.querySelectorAll('textarea[id^="src_"]');
+		for(var i=0; i<all_descriptions.length; i++) {
+			all_descriptions[i].value = str;
+		}
+	}
+
+	set_srccode_all(str) {
+		var all_srccodes = document.querySelectorAll('textarea[id^="updsrc_"]')
+		for(var i=0; i<all_srccodes.length; i++) {
+			all_srccodes[i].value = str;
+		}
+	}
+
 	diag_clean(flag) {
 		switch(flag) {
 			case "はい":
-				this.set_comment("");
-				this.set_srccode("");
+				this.set_comment_all("");
+				this.set_srccode_all("");
 				break;
 			case "なし":
-				this.set_comment("");
-				this.set_description("");
-				this.set_srccode("");
+				this.set_comment_all("");
+				this.set_description_all("");
+				this.set_srccode_all("");
 				break;
 		}
 	}
@@ -164,34 +268,16 @@ class libraPlusUtil {
 		判定ダイアログ拡張メソッド一式
 	-------------------------------------------*/
 	survey_OK() {
-		var flag = "";
-		for(var i=0; i<this.result.length; i++) {
-			flag += "はい";
-			if(i != (this.result.length - 1))
-				flag += "/";
-		}
-		this.set_survey(flag);
+		this.set_survey_all("はい");
 		this.diag_clean("はい");
 	}
 
 	survey_OK2() {
-		var flag = "";
-		for(var i=0; i<this.result.length; i++) {
-			flag += "はい(注記)";
-			if(i != (this.result.length - 1))
-				flag += "/";
-		}
-		this.set_survey(flag);
+		this.set_survey_all("はい(注記)");
 	}
 
 	survey_NA() {
-		var flag = "";
-		for(var i=0; i<this.result.length; i++) {
-			flag += "なし";
-			if(i != (this.result.length - 1))
-				flag += "/";
-		}
-		this.set_survey(flag);
+		this.set_survey_all("なし");
 		this.diag_clean("なし");
 	}
 
