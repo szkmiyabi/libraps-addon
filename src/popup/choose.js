@@ -18,11 +18,31 @@ document.getElementById("prev").addEventListener("click", (e) => {
     .catch(console.error("error"));
 });
 
+document.getElementById("open").addEventListener("click", (e) => {
+    browser.tabs.query({active: true, currentWindow: true})
+    .then((tabs) => {
+        browser.tabs.sendMessage(tabs[0].id, {
+            command: "open"
+        });
+    })
+    .catch(console.error("error"));
+});
+
 document.getElementById("svok").addEventListener("click", (e) => {
     browser.tabs.query({active: true, currentWindow: true})
     .then((tabs) => {
         browser.tabs.sendMessage(tabs[0].id, {
             command: "svok"
+        });
+    })
+    .catch(console.error("error"));
+});
+
+document.getElementById("svfail").addEventListener("click", (e) => {
+    browser.tabs.query({active: true, currentWindow: true})
+    .then((tabs) => {
+        browser.tabs.sendMessage(tabs[0].id, {
+            command: "svfail"
         });
     })
     .catch(console.error("error"));
@@ -58,6 +78,34 @@ document.getElementById("paste").addEventListener("click", (e) => {
     .catch(console.error("error"));
 });
 
+document.getElementById("all-copy").addEventListener("click", (e) => {
+    browser.tabs.query({active: true, currentWindow: true})
+    .then((tabs) => {
+        browser.tabs.sendMessage(tabs[0].id, {
+            command: "all-copy"
+        });
+    })
+    .catch(console.error("error"));
+});
+
+document.getElementById("all-paste").addEventListener("click", (e) => {
+    browser.tabs.query({active: true, currentWindow: true})
+    .then((tabs) => {
+        browser.tabs.sendMessage(tabs[0].id, {
+            command: "all-paste"
+        });
+    })
+    .catch(console.error("error"));
+});
+
+document.getElementById("tabcopy").addEventListener("click", (e) => {
+    browser.tabs.query({active: true, currentWindow: true})
+    .then((tabs) => {
+        browser.tabs.duplicate(tabs[0].id);
+    })
+    .catch(console.error("error"));
+});
+
 document.getElementById("bookmarklet").addEventListener("click", (e) => {
     browser.tabs.query({active: true, currentWindow: true})
     .then((tabs) => {
@@ -69,11 +117,10 @@ document.getElementById("bookmarklet").addEventListener("click", (e) => {
 });
 
 document.getElementById("status").addEventListener("click", (e) => {
-    browser.tabs.query({active: true, currentWindow: true})
-    .then((tabs) => {
-        browser.tabs.sendMessage(tabs[0].id, {
-            command: "status"
-        });
-    })
-    .catch(console.error("error"));
+    browser.windows.create({
+        url: "https://jis2.infocreate.co.jp/libraplus/status/list/",
+        width: 1000,
+        height: 600,
+        type: "normal"
+    });
 });

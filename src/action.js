@@ -18,10 +18,12 @@ class libraPlusUtil {
 			"3": "なし"
 		};
 		this.tab_sp = "<bkmk:tab>";
-        this.br_sp = "<bkmk:br>";
+		this.br_sp = "<bkmk:br>";
+        this.data_tab_sp = "<bkmk:data:tab>";
+        this.data_br_sp = "<bkmk:data:br>";
         this.status_page_url = "/libraplus/status/list/";
         this.url_select = document.querySelector('#select_urlno');
-
+		this.owner_window = window.opener;
 	}
 
 	/*-----------------------------------------
@@ -130,6 +132,24 @@ class libraPlusUtil {
         event.initEvent(type, true, false);
         obj.dispatchEvent(event);
     }
+
+	get_url_string(str) {
+		var pt = new RegExp(/http.*\/\/.*/);
+		if(pt.test(str)) {
+			var mt = str.match(pt);
+			return this.amp_decode(mt[0].toString());
+		}
+		return "";
+	}
+
+	amp_decode(str) {
+		return str.replace(/(&amp;|%26)/, "&");
+	}
+
+	have_opener() {
+		if(window.opener == null) return false;
+		else return true;
+	}
 
 	/*-----------------------------------------
 		判定ダイアログメソッド一式
@@ -264,6 +284,157 @@ class libraPlusUtil {
 		}
 	}
 
+	/* ----------------------------------------
+		全項目に対応した判定ダイアログメソッド一式
+	------------------------------------------*/
+	m_diag_result(cell) {
+		return cell.querySelector('select[id^="result_"]');
+	}
+
+	m_diag_comment(cell) {
+		return cell.querySelector('textarea[id^="comment"]');
+	}
+
+	m_diag_description(cell) {
+		return cell.querySelector('textarea[id^="src_"]')
+	}
+
+	m_diag_srccode(cell) {
+		return cell.querySelector('textarea[id^="updsrc_"]')
+	}
+
+	m_diag_exists_ta(tr) {
+		if(tr.querySelectorAll('textarea').length > 0) return true;
+		else return false;
+	}
+
+	m_diag_get_data() {
+		var data = new Array();
+		var cnt = 0;
+		var trs = this.diag_tbl.rows;
+		for(var i=1; i<trs.length; i++) {
+			var row = new Array();
+			var tr = trs[i];
+			for(var j=0; j<tr.cells.length; j++) {
+				var cell = tr.cells[j];
+				var cell_val = "";
+				if(j==0 || j==1) {
+					cell_val = this.m_diag_get_text(cell);
+				} else if(j==2) {
+					cell_val = this.m_diag_get_survey(cell);
+				} else if(j==3) {
+					if(this.m_diag_exists_ta(cell)) {
+						cnt++;
+						cell_val += `<bkmk:data:rw${i-1}:cn${cnt}:start>`;
+						cell_val += this.m_diag_get_comment(cell);
+						cell_val += this.data_tab_sp;
+						cell_val += this.m_diag_get_description(cell);
+						cell_val += this.data_tab_sp;
+						cell_val += this.m_diag_get_srccode(cell);
+						cell_val += `<bkmk:data:rw${i-1}:cn${cnt}:end>`;
+					} else {
+						cell_val += "empty cell";
+					}
+				}
+				row.push(cell_val);
+			}
+			data[i-1] = row;
+		}
+		return data;
+	}
+
+	m_diag_get_text(cell) {
+		var txt = cell.innerHTML;
+		var pt = new RegExp(/^([^<].+?)(<)/);
+		if(pt.test(txt)) {
+			return txt.match(pt)[1];
+		} else {
+			return txt;
+		}
+	}
+
+	m_diag_get_survey(cell) {
+		var key = "";
+		var obj = this.m_diag_result(cell);
+		var opts = obj.getElementsByTagName("option");
+		var idx = obj.selectedIndex;
+		for(var j=0; j<opts.length; j++) {
+			var opt = opts[j];
+			if(j == idx) {
+				key = opt.value;
+				break;
+			}
+		}
+		return this.hash[key];
+	}
+
+	m_diag_get_comment(cell) {
+		return this.m_diag_comment(cell).value;
+	}
+
+	m_diag_get_description(cell) {
+		return this.m_diag_description(cell).value;
+	}
+
+	m_diag_get_srccode(cell) {
+		return this.m_diag_srccode(cell).value;
+	}
+
+	m_diag_set_data(data) {
+		var trs = this.diag_tbl.rows;
+		var arr = data.split(this.data_br_sp);
+		for(var i=0; i<arr.length; i++) {
+			var row = arr[i];
+			var row_arr = row.split(this.tab_sp);
+			var tr = trs[i+1];
+			for(var j=0; j<=row_arr.length; j++) {
+				var val = row_arr[j];
+				var cell = tr.cells[j];
+				if(j==2) {
+					this.m_diag_set_survey(cell, val);
+				} else if(j==3) {
+					if(this.m_diag_exists_ta(tr)) {
+						val = val.replace(/<bkmk:data:rw[0-9]+:cn[0-9]+:start>/, "");
+						val = val.replace(/<bkmk:data:rw[0-9]+:cn[0-9]+:end>/, "");
+						var ta_vals = val.split(this.data_tab_sp);
+						for(var z=0; z<ta_vals.length; z++) {
+							var ta_val = this.br_decode(ta_vals[z]);
+							if(z==0) this.m_diag_set_comment(cell, ta_val);
+							else if(z==1) this.m_diag_set_description(cell, ta_val);
+							else if(z==2) this.m_diag_set_srccode(cell, ta_val);
+						}
+					}
+
+				}
+			}
+		}
+	}
+
+	m_diag_set_survey(cell, flag) {
+		var obj = this.m_diag_result(cell);
+		var key = this.get_survey_key(flag);
+		var opts = obj.getElementsByTagName("option");
+		for(var j=0; j<opts.length; j++) {
+			var opt = opts[j];
+			if(opt.value == key) {
+				obj.selectedIndex = j;
+				break;
+			}
+		}
+	}
+
+	m_diag_set_comment(cell, str) {
+		this.m_diag_comment(cell).value = str;
+	}
+
+	m_diag_set_description(cell, str) {
+		this.m_diag_description(cell).value = str;
+	}
+
+	m_diag_set_srccode(cell, str) {
+		this.m_diag_srccode(cell).value = str;
+	}
+
 	/*-----------------------------------------
 		判定ダイアログ拡張メソッド一式
 	-------------------------------------------*/
@@ -274,6 +445,10 @@ class libraPlusUtil {
 
 	survey_OK2() {
 		this.set_survey_all("はい(注記)");
+	}
+
+	survey_FAIL() {
+		this.set_survey_all("いいえ");
 	}
 
 	survey_NA() {
@@ -347,7 +522,7 @@ class libraPlusUtil {
 	}
     
     status_page() {
-        window.open(this.status_page_url, "_blank");
+		window.open(this.status_page_url, "_blank");
     }
 
     svpage_next() {
@@ -372,6 +547,50 @@ class libraPlusUtil {
         this.event_ignite(this.url_select, "change");
 	}
 
+	svpage_open() {
+		var burl = "";
+		var select = null;
+		if(this.have_opener())
+			select = window.opener.document.querySelector('#select_urlno');
+		else
+			select = this.url_select;
+		if(typeof select == "undefined" || select == null) {
+			alert("この画面からは実行できません");
+			return;
+		}
+		var opts = select.getElementsByTagName("option");
+		var idx = select.selectedIndex;
+		for(var i=0; i<opts.length; i++) {
+			var op = opts[i];
+			if(i == idx) {
+				burl = op.text;
+				break;
+			}
+		}
+		burl = this.get_url_string(burl);
+		window.open(burl, "_blank");
+	}
+
+	survey_copy_all() {
+		var txt = "";
+		var arr = this.m_diag_get_data();
+		for(var i=0; i<arr.length; i++) {
+			var row = arr[i];
+			for(var j=0; j<row.length; j++) {
+				txt += this.br_encode(row[j]);
+				if(j != (row.length - 1)) txt += this.tab_sp;
+			}
+			if(i != (arr.length - 1)) txt += this.data_br_sp;
+		}
+		prompt("Ctrl+Cでコピーしてください。", txt);
+	}
+
+	survey_paste_all() {
+		var data = prompt("コピーしたデータを貼り付けてください");
+		data = data.trim();
+		this.m_diag_set_data(data);
+	}
+
 }
 
 const util = new libraPlusUtil();
@@ -389,23 +608,30 @@ browser.runtime.onMessage.addListener((message) => {
             break;
         case "svok":
 			util.survey_OK();
-			util.save_survey();
             break;
-        case "svna":
+        case "svfail":
+			util.survey_FAIL();
+			break;
+		case "svna":
 			util.survey_NA();
-			util.save_survey();
-            break;
+			break;
         case "copy":
             util.survey_copy();
             break;
         case "paste":
             util.survey_paste();
 			break;
+		case "all-copy":
+			util.survey_copy_all();
+			break;
+		case "all-paste":
+			util.survey_paste_all();
+			break;
 		case "bookmarklet":
 			util.bookmarklet();
 			break;
-        case "status":
-            util.status_page();
+		case "open":
+			util.svpage_open();
 			break;
     }
 });
