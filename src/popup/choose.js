@@ -18,21 +18,21 @@ document.getElementById("prev").addEventListener("click", (e) => {
     .catch(console.error("error"));
 });
 
-document.getElementById("copy").addEventListener("click", (e) => {
+document.getElementById("single-cp").addEventListener("click", (e) => {
     browser.tabs.query({active: true, currentWindow: true})
     .then((tabs) => {
         browser.tabs.sendMessage(tabs[0].id, {
-            command: "copy"
+            command: "single-cp"
         });
     })
     .catch(console.error("error"));
 });
 
-document.getElementById("paste").addEventListener("click", (e) => {
+document.getElementById("single-ps").addEventListener("click", (e) => {
     browser.tabs.query({active: true, currentWindow: true})
     .then((tabs) => {
         browser.tabs.sendMessage(tabs[0].id, {
-            command: "paste"
+            command: "single-ps"
         });
     })
     .catch(console.error("error"));

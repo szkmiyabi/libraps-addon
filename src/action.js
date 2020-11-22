@@ -53,45 +53,6 @@ class libraPlusUtil {
 		return this.diag_tbl.querySelectorAll('textarea[id^="comment"]').length;
 	}
 
-	m_result() {
-		var parent = null;
-		if(this.cursoled_obj() == null || this.is_body(this.cursoled_obj())) {
-			if(this.diag_ta_group_count() == 1)
-				parent = document;
-			else
-				parent = this.diag_tbl.getElementsByTagName("tr")[1];
-		} else {
-			parent = this.parent_tr(this.cursoled_obj());
-		}
-		return parent.querySelectorAll('select[id^="result_"]');
-	}
-
-	m_comment() {
-		var parent = null;
-		if(this.cursoled_obj() == null || this.is_body(this.cursoled_obj()))
-			parent = document;
-		else
-			parent = this.parent_tr(this.cursoled_obj());
-		return parent.querySelector('textarea[id^="comment"]');
-	}
-
-	m_description() {
-		var parent = null;
-		if(this.cursoled_obj() == null || this.is_body(this.cursoled_obj()))
-			parent = document;
-		else
-			parent = this.parent_tr(this.cursoled_obj());
-		return parent.querySelector('textarea[id^="src_"]')
-	}
-
-	m_srccode() {
-		var parent = null;
-		if(this.cursoled_obj() == null || this.is_body(this.cursoled_obj()))
-			parent = document;
-		else
-			parent = this.parent_tr(this.cursoled_obj());
-		return parent.querySelector('textarea[id^="updsrc_"]')
-	}
 
 	text_clean(str) {
 	    str=str.replace(/^ +/m,"");
@@ -151,12 +112,56 @@ class libraPlusUtil {
 		else return true;
 	}
 
+	save_survey() {
+		this.save_survey_btn.click();
+	}
+
 	/*-----------------------------------------
-		判定ダイアログメソッド一式
+		単一項目判定メソッド
 	-------------------------------------------*/
-	get_survey() {
+	_single_result() {
+		var parent = null;
+		if(this.cursoled_obj() == null || this.is_body(this.cursoled_obj())) {
+			if(this.diag_ta_group_count() == 1)
+				parent = document;
+			else
+				parent = this.diag_tbl.getElementsByTagName("tr")[1];
+		} else {
+			parent = this.parent_tr(this.cursoled_obj());
+		}
+		return parent.querySelectorAll('select[id^="result_"]');
+	}
+
+	_single_comment() {
+		var parent = null;
+		if(this.cursoled_obj() == null || this.is_body(this.cursoled_obj()))
+			parent = document;
+		else
+			parent = this.parent_tr(this.cursoled_obj());
+		return parent.querySelector('textarea[id^="comment"]');
+	}
+
+	_single_description() {
+		var parent = null;
+		if(this.cursoled_obj() == null || this.is_body(this.cursoled_obj()))
+			parent = document;
+		else
+			parent = this.parent_tr(this.cursoled_obj());
+		return parent.querySelector('textarea[id^="src_"]')
+	}
+
+	_single_srccode() {
+		var parent = null;
+		if(this.cursoled_obj() == null || this.is_body(this.cursoled_obj()))
+			parent = document;
+		else
+			parent = this.parent_tr(this.cursoled_obj());
+		return parent.querySelector('textarea[id^="updsrc_"]')
+	}
+
+	get_survey_single() {
 		var survey_str = "";
-		var results = this.m_result();
+		var results = this._single_result();
 		for(var i=0; i<results.length; i++) {
 			var key = "";
 			var opts = results[i].getElementsByTagName("option");
@@ -178,7 +183,7 @@ class libraPlusUtil {
 		return survey_str;
 	}
 
-	get_survey_key(key_val) {
+	get_survey_key_single(key_val) {
 		var ret_key = "";
 		for(var key in this.hash) {
 			var val = this.hash[key];
@@ -190,23 +195,23 @@ class libraPlusUtil {
 		return ret_key;
 	}
 
-	get_comment() {
-		return this.m_comment().value;
+	get_comment_single() {
+		return this._single_comment().value;
 	}
 
-	get_description() {
-		return this.m_description().value;
+	get_description_single() {
+		return this._single_description().value;
 	}
 
-	get_srccode() {
-		return this.m_srccode().value;
+	get_srccode_single() {
+		return this._single_srccode().value;
 	}
 
-	set_survey(flag) {
+	set_survey_single(flag) {
 		var flag_arr = flag.split(/\//mg);
-		var results = this.m_result();		
+		var results = this._single_result();		
 		for(var i=0; i<results.length; i++) {
-			var key = this.get_survey_key(flag_arr[i]);
+			var key = this.get_survey_key_single(flag_arr[i]);
 			var opts = results[i].getElementsByTagName("option");
 			for(var j=0; j<opts.length; j++) {
 				var opt = opts[j];
@@ -218,23 +223,19 @@ class libraPlusUtil {
 		}
 	}
 
-	set_comment(str) {
-		this.m_comment().value = str;
+	set_comment_single(str) {
+		this._single_comment().value = str;
 	}
 
-	set_description(str) {
-		this.m_description().value = str;
+	set_description_single(str) {
+		this._single_description().value = str;
 	}
 
-	set_srccode(str) {
-		this.m_srccode().value = str;
+	set_srccode_single(str) {
+		this._single_srccode().value = str;
 	}
 
-	save_survey() {
-		this.save_survey_btn.click();
-	}
-
-	set_survey_all(flag) {
+	set_survey_fill(flag) {
 		var all_results = document.querySelectorAll('select[id^="result_"]');
 		for(var i=0; i<all_results.length; i++) {
 			var key = this.get_survey_key(flag);
@@ -249,43 +250,95 @@ class libraPlusUtil {
 		}
 	}
 
-	set_comment_all(str) {
+	set_comment_fill(str) {
 		var all_comments = document.querySelectorAll('textarea[id^="comment"]');
 		for(var i=0; i<all_comments.length; i++) {
 			all_comments[i].value = str;
 		}
 	}
 
-	set_description_all(str) {
+	set_description_fill(str) {
 		var all_descriptions = document.querySelectorAll('textarea[id^="src_"]');
 		for(var i=0; i<all_descriptions.length; i++) {
 			all_descriptions[i].value = str;
 		}
 	}
 
-	set_srccode_all(str) {
+	set_srccode_fill(str) {
 		var all_srccodes = document.querySelectorAll('textarea[id^="updsrc_"]')
 		for(var i=0; i<all_srccodes.length; i++) {
 			all_srccodes[i].value = str;
 		}
 	}
 
-	diag_clean(flag) {
+	diag_clean_single(flag) {
 		switch(flag) {
 			case "はい":
-				this.set_comment_all("");
-				this.set_srccode_all("");
+				this.set_comment_fill("");
+				this.set_srccode_fill("");
 				break;
 			case "なし":
-				this.set_comment_all("");
-				this.set_description_all("");
-				this.set_srccode_all("");
+				this.set_comment_fill("");
+				this.set_description_fill("");
+				this.set_srccode_all_fill("");
 				break;
 		}
 	}
 
+	/*-----------------------------------------
+		単一項目コピー／貼り付けメソッド
+	-------------------------------------------*/
+	survey_single_copy() {
+		var txt = "";
+		var str_tech = "any";
+		var str_sv_cp = "any";
+		var str_sv = this.get_survey_single();
+		var str_comment = this.br_encode(this.get_comment_single());
+		var str_description = this.br_encode(this.get_description_single());
+		var str_srccode = this.br_encode(this.get_srccode_single());
+		txt = str_tech + this.tab_sp + str_sv + this.tab_sp + str_sv_cp + this.tab_sp + "who" + this.tab_sp;
+		txt += str_comment + this.tab_sp + str_description + this.tab_sp + str_srccode;
+		prompt("Ctrl+Cでコピーしてください。", txt);
+	}
+
+	survey_single_paste() {
+		var src = prompt("コピーしたデータを貼り付けてください");
+		src = src.trim();
+		var arr = this.survey_single_data_bind(src);
+		var sv = arr[0];
+		this.set_survey_single(sv);
+		this.set_comment_single(arr[2]);
+		this.set_description_single(arr[3]);
+		this.set_srccode_single(arr[4]);
+	}
+
+	survey_single_data_bind(data) {
+		var arr = new Array();
+		var str_sv = "";
+		var str_sv_cp = "any";
+		var str_comment = "";
+		var str_description = "";
+		var str_srccode = "";
+		var tmp = data.split(this.tab_sp);
+		if(tmp != null) {
+			str_sv = tmp[1].toString().trim();
+			if(str_sv_cp === "") str_sv_cp = "no";
+			str_comment = this.br_decode(this.get_safe_value(tmp[4]));
+			str_description = this.br_decode(this.get_safe_value(tmp[5]));
+			str_srccode = this.br_decode(this.get_safe_value(tmp[6]));
+			arr.push(str_sv);
+			arr.push(str_sv_cp);
+			arr.push(str_comment);
+			arr.push(str_description);
+			arr.push(str_srccode);
+			return arr;
+		} else {
+			return null;
+		}
+	}
+
 	/* ----------------------------------------
-		全項目に対応した判定ダイアログメソッド一式
+		全項目判定メソッド
 	------------------------------------------*/
 	m_diag_result(cell) {
 		return cell.querySelector('select[id^="result_"]');
@@ -438,65 +491,6 @@ class libraPlusUtil {
 	/*-----------------------------------------
 		判定ダイアログ拡張メソッド一式
 	-------------------------------------------*/
-	survey_copy() {
-		var txt = "";
-		var str_tech = "any";
-		var str_sv_cp = "any";
-		var str_sv = this.get_survey();
-		var str_comment = this.br_encode(this.get_comment());
-		var str_description = this.br_encode(this.get_description());
-		var str_srccode = this.br_encode(this.get_srccode());
-		txt = str_tech + this.tab_sp + str_sv + this.tab_sp + str_sv_cp + this.tab_sp + "who" + this.tab_sp;
-		txt += str_comment + this.tab_sp + str_description + this.tab_sp + str_srccode;
-		prompt("Ctrl+Cでコピーしてください。", txt);
-	}
-
-	survey_paste() {
-		var src = prompt("コピーしたデータを貼り付けてください");
-		src = src.trim();
-		var arr = this.survey_paste_data_bind(src);
-		var sv = arr[0];
-		this.set_survey(sv);
-		this.set_comment(arr[2]);
-		this.set_description(arr[3]);
-		this.set_srccode(arr[4]);
-	}
-
-	survey_paste_bkmk() {
-		var src = prompt("コピーしたデータを貼り付けてください");
-		src = src.trim();
-		var arr = this.survey_paste_data_bind(src);
-		var sv = arr[0];
-		this.set_survey(sv);
-		this.set_comment(arr[2]);
-		this.set_description(arr[3]);
-		this.set_srccode(arr[4]);
-	}
-
-	survey_paste_data_bind(data) {
-		var arr = new Array();
-		var str_sv = "";
-		var str_sv_cp = "any";
-		var str_comment = "";
-		var str_description = "";
-		var str_srccode = "";
-		var tmp = data.split(this.tab_sp);
-		if(tmp != null) {
-			str_sv = tmp[1].toString().trim();
-			if(str_sv_cp === "") str_sv_cp = "no";
-			str_comment = this.br_decode(this.get_safe_value(tmp[4]));
-			str_description = this.br_decode(this.get_safe_value(tmp[5]));
-			str_srccode = this.br_decode(this.get_safe_value(tmp[6]));
-			arr.push(str_sv);
-			arr.push(str_sv_cp);
-			arr.push(str_comment);
-			arr.push(str_description);
-			arr.push(str_srccode);
-			return arr;
-		} else {
-			return null;
-		}
-	}
 	
 	run_js() {
 		var src = prompt("コピーしたブックマークレットを貼り付けてください");
@@ -560,11 +554,11 @@ browser.runtime.onMessage.addListener((message) => {
         case "prev":
             util.svpage_prev();
             break;
-        case "copy":
-            util.survey_copy();
+        case "single-cp":
+            util.survey_single_copy();
             break;
-        case "paste":
-            util.survey_paste();
+        case "single-ps":
+            util.survey_single_paste();
 			break;
 		case "all-copy":
 			util.survey_copy_all();
