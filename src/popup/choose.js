@@ -38,27 +38,27 @@ document.getElementById("single-ps").addEventListener("click", (e) => {
     .catch(console.error("error"));
 });
 
-document.getElementById("all-copy").addEventListener("click", (e) => {
+document.getElementById("all-cp").addEventListener("click", (e) => {
     browser.tabs.query({active: true, currentWindow: true})
     .then((tabs) => {
         browser.tabs.sendMessage(tabs[0].id, {
-            command: "all-copy"
+            command: "all-cp"
         });
     })
     .catch(console.error("error"));
 });
 
-document.getElementById("all-paste").addEventListener("click", (e) => {
+document.getElementById("all-ps").addEventListener("click", (e) => {
     browser.tabs.query({active: true, currentWindow: true})
     .then((tabs) => {
         browser.tabs.sendMessage(tabs[0].id, {
-            command: "all-paste"
+            command: "all-ps"
         });
     })
     .catch(console.error("error"));
 });
 
-document.getElementById("tabcopy").addEventListener("click", (e) => {
+document.getElementById("tab-cp").addEventListener("click", (e) => {
     browser.tabs.query({active: true, currentWindow: true})
     .then((tabs) => {
         browser.tabs.duplicate(tabs[0].id);

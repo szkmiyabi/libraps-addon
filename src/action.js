@@ -340,63 +340,28 @@ class libraPlusUtil {
 	/* ----------------------------------------
 		全項目判定メソッド
 	------------------------------------------*/
-	m_diag_result(cell) {
+	_all_result(cell) {
 		return cell.querySelector('select[id^="result_"]');
 	}
 
-	m_diag_comment(cell) {
+	_all_comment(cell) {
 		return cell.querySelector('textarea[id^="comment"]');
 	}
 
-	m_diag_description(cell) {
+	_all_description(cell) {
 		return cell.querySelector('textarea[id^="src_"]')
 	}
 
-	m_diag_srccode(cell) {
+	_all_srccode(cell) {
 		return cell.querySelector('textarea[id^="updsrc_"]')
 	}
 
-	m_diag_exists_ta(tr) {
+	_all_exists_ta(tr) {
 		if(tr.querySelectorAll('textarea').length > 0) return true;
 		else return false;
 	}
 
-	m_diag_get_data() {
-		var data = new Array();
-		var cnt = 0;
-		var trs = this.diag_tbl.rows;
-		for(var i=1; i<trs.length; i++) {
-			var row = new Array();
-			var tr = trs[i];
-			for(var j=0; j<tr.cells.length; j++) {
-				var cell = tr.cells[j];
-				var cell_val = "";
-				if(j==0 || j==1) {
-					cell_val = this.m_diag_get_text(cell);
-				} else if(j==2) {
-					cell_val = this.m_diag_get_survey(cell);
-				} else if(j==3) {
-					if(this.m_diag_exists_ta(cell)) {
-						cnt++;
-						cell_val += `<bkmk:data:rw${i-1}:cn${cnt}:start>`;
-						cell_val += this.m_diag_get_comment(cell);
-						cell_val += this.data_tab_sp;
-						cell_val += this.m_diag_get_description(cell);
-						cell_val += this.data_tab_sp;
-						cell_val += this.m_diag_get_srccode(cell);
-						cell_val += `<bkmk:data:rw${i-1}:cn${cnt}:end>`;
-					} else {
-						cell_val += "empty cell";
-					}
-				}
-				row.push(cell_val);
-			}
-			data[i-1] = row;
-		}
-		return data;
-	}
-
-	m_diag_get_text(cell) {
+	_all_get_text(cell) {
 		var txt = cell.innerHTML;
 		var pt = new RegExp(/^([^<].+?)(<)/);
 		if(pt.test(txt)) {
@@ -406,9 +371,9 @@ class libraPlusUtil {
 		}
 	}
 
-	m_diag_get_survey(cell) {
+	_all_get_survey(cell) {
 		var key = "";
-		var obj = this.m_diag_result(cell);
+		var obj = this._all_result(cell);
 		var opts = obj.getElementsByTagName("option");
 		var idx = obj.selectedIndex;
 		for(var j=0; j<opts.length; j++) {
@@ -421,51 +386,22 @@ class libraPlusUtil {
 		return this.hash[key];
 	}
 
-	m_diag_get_comment(cell) {
-		return this.m_diag_comment(cell).value;
+	_all_get_comment(cell) {
+		return this._all_comment(cell).value;
 	}
 
-	m_diag_get_description(cell) {
-		return this.m_diag_description(cell).value;
+	_all_get_description(cell) {
+		return this._all_description(cell).value;
 	}
 
-	m_diag_get_srccode(cell) {
-		return this.m_diag_srccode(cell).value;
+	_all_get_srccode(cell) {
+		return this._all_srccode(cell).value;
 	}
 
-	m_diag_set_data(data) {
-		var trs = this.diag_tbl.rows;
-		var arr = data.split(this.data_br_sp);
-		for(var i=0; i<arr.length; i++) {
-			var row = arr[i];
-			var row_arr = row.split(this.tab_sp);
-			var tr = trs[i+1];
-			for(var j=0; j<=row_arr.length; j++) {
-				var val = row_arr[j];
-				var cell = tr.cells[j];
-				if(j==2) {
-					this.m_diag_set_survey(cell, val);
-				} else if(j==3) {
-					if(this.m_diag_exists_ta(tr)) {
-						val = val.replace(/<bkmk:data:rw[0-9]+:cn[0-9]+:start>/, "");
-						val = val.replace(/<bkmk:data:rw[0-9]+:cn[0-9]+:end>/, "");
-						var ta_vals = val.split(this.data_tab_sp);
-						for(var z=0; z<ta_vals.length; z++) {
-							var ta_val = this.br_decode(ta_vals[z]);
-							if(z==0) this.m_diag_set_comment(cell, ta_val);
-							else if(z==1) this.m_diag_set_description(cell, ta_val);
-							else if(z==2) this.m_diag_set_srccode(cell, ta_val);
-						}
-					}
-
-				}
-			}
-		}
-	}
-
-	m_diag_set_survey(cell, flag) {
-		var obj = this.m_diag_result(cell);
-		var key = this.get_survey_key(flag);
+	_all_set_survey(cell, flag) {
+		var obj = this._all_result(cell);
+		//単一判定メソッド群より流用
+		var key = this.get_survey_key_single(flag);
 		var opts = obj.getElementsByTagName("option");
 		for(var j=0; j<opts.length; j++) {
 			var opt = opts[j];
@@ -476,22 +412,109 @@ class libraPlusUtil {
 		}
 	}
 
-	m_diag_set_comment(cell, str) {
-		this.m_diag_comment(cell).value = str;
+	_all_set_comment(cell, str) {
+		this._all_comment(cell).value = str;
 	}
 
-	m_diag_set_description(cell, str) {
-		this.m_diag_description(cell).value = str;
+	_all_set_description(cell, str) {
+		this._all_description(cell).value = str;
 	}
 
-	m_diag_set_srccode(cell, str) {
-		this.m_diag_srccode(cell).value = str;
+	_all_set_srccode(cell, str) {
+		this._all_srccode(cell).value = str;
+	}
+
+	/* ----------------------------------------
+		全項目コピー／貼り付けメソッド
+	------------------------------------------*/
+	survey_all_copy() {
+		var txt = "";
+		var arr = this.get_data_survey_all();
+		for(var i=0; i<arr.length; i++) {
+			var row = arr[i];
+			for(var j=0; j<row.length; j++) {
+				txt += this.br_encode(row[j]);
+				if(j != (row.length - 1)) txt += this.tab_sp;
+			}
+			if(i != (arr.length - 1)) txt += this.data_br_sp;
+		}
+		prompt("Ctrl+Cでコピーしてください。", txt);
+	}
+
+	survey_all_paste() {
+		var data = prompt("コピーしたデータを貼り付けてください");
+		data = data.trim();
+		this.set_data_survey_all(data);
+	}
+
+	get_data_survey_all() {
+		var data = new Array();
+		var cnt = 0;
+		var trs = this.diag_tbl.rows;
+		for(var i=1; i<trs.length; i++) {
+			var row = new Array();
+			var tr = trs[i];
+			for(var j=0; j<tr.cells.length; j++) {
+				var cell = tr.cells[j];
+				var cell_val = "";
+				if(j==0 || j==1) {
+					cell_val = this._all_get_text(cell);
+				} else if(j==2) {
+					cell_val = this._all_get_survey(cell);
+				} else if(j==3) {
+					if(this._all_exists_ta(cell)) {
+						cnt++;
+						cell_val += `<bkmk:data:rw${i-1}:cn${cnt}:start>`;
+						cell_val += this._all_get_comment(cell);
+						cell_val += this.data_tab_sp;
+						cell_val += this._all_get_description(cell);
+						cell_val += this.data_tab_sp;
+						cell_val += this._all_get_srccode(cell);
+						cell_val += `<bkmk:data:rw${i-1}:cn${cnt}:end>`;
+					} else {
+						cell_val += "empty cell";
+					}
+				}
+				row.push(cell_val);
+			}
+			data[i-1] = row;
+		}
+		return data;
+	}
+
+	set_data_survey_all(data) {
+		var trs = this.diag_tbl.rows;
+		var arr = data.split(this.data_br_sp);
+		for(var i=0; i<arr.length; i++) {
+			var row = arr[i];
+			var row_arr = row.split(this.tab_sp);
+			var tr = trs[i+1];
+			for(var j=0; j<=row_arr.length; j++) {
+				var val = row_arr[j];
+				var cell = tr.cells[j];
+				if(j==2) {
+					this._all_set_survey(cell, val);
+				} else if(j==3) {
+					if(this._all_exists_ta(tr)) {
+						val = val.replace(/<bkmk:data:rw[0-9]+:cn[0-9]+:start>/, "");
+						val = val.replace(/<bkmk:data:rw[0-9]+:cn[0-9]+:end>/, "");
+						var ta_vals = val.split(this.data_tab_sp);
+						for(var z=0; z<ta_vals.length; z++) {
+							var ta_val = this.br_decode(ta_vals[z]);
+							if(z==0) this._all_set_comment(cell, ta_val);
+							else if(z==1) this._all_set_description(cell, ta_val);
+							else if(z==2) this._all_set_srccode(cell, ta_val);
+						}
+					}
+
+				}
+			}
+		}
 	}
 
 	/*-----------------------------------------
-		判定ダイアログ拡張メソッド一式
+		ユーティリティ的機能のメソッド一式
 	-------------------------------------------*/
-	
 	run_js() {
 		var src = prompt("コピーしたブックマークレットを貼り付けてください");
 		eval("{" + src + "}");
@@ -519,26 +542,6 @@ class libraPlusUtil {
         this.event_ignite(this.url_select, "change");
 	}
 
-	survey_copy_all() {
-		var txt = "";
-		var arr = this.m_diag_get_data();
-		for(var i=0; i<arr.length; i++) {
-			var row = arr[i];
-			for(var j=0; j<row.length; j++) {
-				txt += this.br_encode(row[j]);
-				if(j != (row.length - 1)) txt += this.tab_sp;
-			}
-			if(i != (arr.length - 1)) txt += this.data_br_sp;
-		}
-		prompt("Ctrl+Cでコピーしてください。", txt);
-	}
-
-	survey_paste_all() {
-		var data = prompt("コピーしたデータを貼り付けてください");
-		data = data.trim();
-		this.m_diag_set_data(data);
-	}
-
 }
 
 const util = new libraPlusUtil();
@@ -560,11 +563,11 @@ browser.runtime.onMessage.addListener((message) => {
         case "single-ps":
             util.survey_single_paste();
 			break;
-		case "all-copy":
-			util.survey_copy_all();
+		case "all-cp":
+			util.survey_all_copy();
 			break;
-		case "all-paste":
-			util.survey_paste_all();
+		case "all-ps":
+			util.survey_all_paste();
 			break;
 		case "run-js":
 			util.run_js();
