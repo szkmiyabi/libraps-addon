@@ -438,24 +438,6 @@ class libraPlusUtil {
 	/*-----------------------------------------
 		判定ダイアログ拡張メソッド一式
 	-------------------------------------------*/
-	survey_OK() {
-		this.set_survey_all("はい");
-		this.diag_clean("はい");
-	}
-
-	survey_OK2() {
-		this.set_survey_all("はい(注記)");
-	}
-
-	survey_FAIL() {
-		this.set_survey_all("いいえ");
-	}
-
-	survey_NA() {
-		this.set_survey_all("なし");
-		this.diag_clean("なし");
-	}
-
 	survey_copy() {
 		var txt = "";
 		var str_tech = "any";
@@ -516,14 +498,10 @@ class libraPlusUtil {
 		}
 	}
 	
-	bookmarklet() {
+	run_js() {
 		var src = prompt("コピーしたブックマークレットを貼り付けてください");
-		eval(src);
+		eval("{" + src + "}");
 	}
-    
-    status_page() {
-		window.open(this.status_page_url, "_blank");
-    }
 
     svpage_next() {
         var idx = this.url_select.selectedIndex;
@@ -545,30 +523,6 @@ class libraPlusUtil {
         }
         this.url_select.selectedIndex = idx;
         this.event_ignite(this.url_select, "change");
-	}
-
-	svpage_open() {
-		var burl = "";
-		var select = null;
-		if(this.have_opener())
-			select = window.opener.document.querySelector('#select_urlno');
-		else
-			select = this.url_select;
-		if(typeof select == "undefined" || select == null) {
-			alert("この画面からは実行できません");
-			return;
-		}
-		var opts = select.getElementsByTagName("option");
-		var idx = select.selectedIndex;
-		for(var i=0; i<opts.length; i++) {
-			var op = opts[i];
-			if(i == idx) {
-				burl = op.text;
-				break;
-			}
-		}
-		burl = this.get_url_string(burl);
-		window.open(burl, "_blank");
 	}
 
 	survey_copy_all() {
@@ -606,15 +560,6 @@ browser.runtime.onMessage.addListener((message) => {
         case "prev":
             util.svpage_prev();
             break;
-        case "svok":
-			util.survey_OK();
-            break;
-        case "svfail":
-			util.survey_FAIL();
-			break;
-		case "svna":
-			util.survey_NA();
-			break;
         case "copy":
             util.survey_copy();
             break;
@@ -627,11 +572,8 @@ browser.runtime.onMessage.addListener((message) => {
 		case "all-paste":
 			util.survey_paste_all();
 			break;
-		case "bookmarklet":
-			util.bookmarklet();
-			break;
-		case "open":
-			util.svpage_open();
+		case "run-js":
+			util.run_js();
 			break;
     }
 });
