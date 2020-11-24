@@ -515,11 +515,6 @@ class libraPlusUtil {
 	/*-----------------------------------------
 		ユーティリティ的機能のメソッド一式
 	-------------------------------------------*/
-	run_js() {
-		var src = prompt("コピーしたブックマークレットを貼り付けてください");
-		eval("{" + src + "}");
-	}
-
     svpage_next() {
         var idx = this.url_select.selectedIndex;
         idx++;
@@ -546,6 +541,11 @@ class libraPlusUtil {
 
 const util = new libraPlusUtil();
 
+const run_js = function() {
+    var src = prompt("実行したいJavascriptコードを入力または貼り付けてください");
+    eval("{" + src + "}");
+};
+
 browser.runtime.onMessage.addListener((message) => {
 
     let cmd = message.command;
@@ -570,7 +570,7 @@ browser.runtime.onMessage.addListener((message) => {
 			util.survey_all_paste();
 			break;
 		case "run-js":
-			util.run_js();
+			run_js();
 			break;
     }
 });
