@@ -86,7 +86,7 @@ class libraPlusUtil {
 		var pat = new RegExp(/\/inspect\/chkpoint\/list\//);
 		if(pat.test(this.url)) return true;
 		else return false;
-    }
+	}
     
     event_ignite(obj, type) {
         var event = document.createEvent("HTMLEvents");
@@ -546,6 +546,38 @@ const run_js = function() {
     eval("{" + src + "}");
 };
 
+const rs_util = function() {
+	var tbl = document.querySelector('#myTable');
+	var trs = tbl.rows;
+	for(var i=2; i<trs.length; i++) {
+		var tr = trs.item(i);
+		var src = tr.cells.item(0).innerHTML;
+		var status = tr.cells.item(2).innerHTML.trim();
+		if(status != "100%") tr.setAttribute("style", "background-color: yellow;");
+		var code = `
+			javascript:(function(){
+				var svpage_url_base = "http://jis2.infocreate.co.jp/libraplus/inspect/start/index/";
+				var owner_window = window.opener;
+				var _current_svpage_siteno = function() {
+					var sl = document.getElementById("siteno");
+					var idx = sl.selectedIndex;
+					var cr_text = sl.getElementsByTagName("option")[idx].innerHTML;
+					var pt = new RegExp(/(\\[)(.+?)(\\])/);
+					return cr_text.match(pt)[2];
+				};
+				var _pagenm_encode= function(str) {
+					var pxpt = new RegExp(/([a-zA-Z\\-]+)([1-9]*)([0-9]+)/);
+					return parseInt(str.match(pxpt)[3]);
+				};
+				var siteno = _current_svpage_siteno();
+				var pageid = _pagenm_encode("${src}");
+				owner_window.open(svpage_url_base + "/" + siteno + "/" + pageid + "/1/page");
+			})();
+		`;
+		tr.cells.item(0).innerHTML = `<a onclick='${code}' style="text-decoration:underline;">` + src + `</a>`;
+	}
+};
+
 browser.runtime.onMessage.addListener((message) => {
 
     let cmd = message.command;
@@ -571,6 +603,9 @@ browser.runtime.onMessage.addListener((message) => {
 			break;
 		case "run-js":
 			run_js();
+			break;
+		case "rs-util":
+			rs_util();
 			break;
     }
 });
