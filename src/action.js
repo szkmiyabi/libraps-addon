@@ -1,3 +1,6 @@
+/* -------------------------------------------------
+ * 検査ウィンドウに関するクラス
+ --------------------------------------------------*/
 class libraPlusUtil {
 	/*-----------------------------------------
 		コンストラクタ
@@ -238,7 +241,7 @@ class libraPlusUtil {
 	set_survey_fill(flag) {
 		var all_results = document.querySelectorAll('select[id^="result_"]');
 		for(var i=0; i<all_results.length; i++) {
-			var key = this.get_survey_key(flag);
+			var key = this.get_survey_key_single(flag);
 			var opts = all_results[i].getElementsByTagName("option");
 			for(var j=0; j<opts.length; j++) {
 				var opt = opts[j];
@@ -271,18 +274,18 @@ class libraPlusUtil {
 		}
 	}
 
-	diag_clean_single(flag) {
-		switch(flag) {
-			case "はい":
-				this.set_comment_fill("");
-				this.set_srccode_fill("");
-				break;
-			case "なし":
-				this.set_comment_fill("");
-				this.set_description_fill("");
-				this.set_srccode_all_fill("");
-				break;
-		}
+	force_survey_ok() {
+		this.set_survey_fill("はい");
+		this.set_comment_fill("");
+		this.set_srccode_fill("");
+		this.save_survey();
+	}
+	
+	force_survey_na() {
+		this.set_survey_fill("なし");
+		this.set_comment_fill("");
+		this.set_srccode_fill("");
+		this.save_survey();
 	}
 
 	/*-----------------------------------------
@@ -539,7 +542,123 @@ class libraPlusUtil {
 
 }
 
+/* -------------------------------------------------
+ * 検査メインページに関するクラス
+ --------------------------------------------------*/
+class mainPageUtil {
+	//コンストラクタ
+	constructor() {
+		this.v_tab = document.querySelector("#tabs");
+		this.sv_lst_tbl = document.querySelector("#table-chkpoint");
+		this.sv_obj_tbl = document.querySelector("#table-inspect");
+	}
+
+	//現在選択されているタブ
+	which_tab_selected() {
+		var ret = "";
+		var cn = null;
+		var wrap_lines = this.v_tab.getElementsByTagName("ul")[0].getElementsByTagName("li");
+		for(var i=0; i<wrap_lines.length; i++) {
+			var at = wrap_lines[i].getElementsByTagName("a")[0];
+			var cs = at.getAttribute("class");
+			if(new RegExp(/active/).test(cs)) {
+				cn = i;
+				break;
+			}
+		}
+		if(cn == null) return;
+		switch(cn) {
+			case 2:
+				ret = "lst";
+				break;
+			default:
+				ret = "any";
+				break;
+		}
+		return ret;
+	}
+
+	add_js() {
+		if(document.querySelector("#libraps-addon-bkmk-script") != null) return;
+		var scr = document.createElement("script");
+		scr.id = "libraps-addon-bkmk-script";
+		var scrtxt = "";
+		scrtxt += 'function change_line_color() {';
+		scrtxt += 'var e = (window.event) ? window.event : arguments.callee.caller.arguments[0];';
+		scrtxt += 'var me = e.target || e.srcElement;';
+		scrtxt += 'var tr = me.parentNode.parentNode;';
+		scrtxt += 'var tds = tr.getElementsByTagName("td");';
+		scrtxt += 'for(var i=0; i<tds.length; i++) {';
+		scrtxt += 'var cell = tds.item(i);';
+		scrtxt += 'if(cell.getAttribute("style") === null){';
+		scrtxt += 'var csstxt = "background: #FF8000;";';
+		scrtxt += 'cell.setAttribute("style", csstxt);';
+		scrtxt += '} else {';
+		scrtxt += 'cell.removeAttribute("style");';
+		scrtxt += '}';
+		scrtxt += '}';
+		scrtxt += '}';
+		scr.textContent = scrtxt;
+		document.getElementsByTagName("body").item(0).appendChild(scr);
+	}
+
+	add_line_handle() {
+		var trs = this.sv_lst_tbl.rows;
+		for(var i=0; i<trs.length; i++) {
+			if(i < 1) continue;
+			var tr = trs.item(i);
+			var td = tr.cells.item(0);
+			var inhtml = td.innerHTML;
+			var new_inhtml = '<input type="checkbox" onclick="change_line_color()">' + inhtml;
+			td.innerHTML = new_inhtml;
+		}
+	}
+
+	//検索して行色付け
+	search_line() {
+		var n = 1;
+		var txt = prompt("検索キーワードを入れてください。");
+		var pt = new RegExp("" + txt + "");
+		var trs = this.sv_lst_tbl.rows;
+		for(var i=0; i<trs.length; i++) {
+			if(i < 1) continue;
+			var tr = trs.item(i);
+			var td = tr.cells.item(n);
+			var inhtml = td.innerHTML;
+			if(pt.test(inhtml)) tr.setAttribute("style", "background: #99FF99;");
+		}
+
+	}
+
+	//不適合(いいえ)行色付け
+	fail_line_color() {
+		var cr_tab = this.which_tab_selected();
+		if(cr_tab == "lst") {
+			var nx = 5;
+			var rows = this.sv_lst_tbl.rows;
+			for(var i=1; i<rows.length; i++) {
+				var tr = rows[i];
+				var clx = tr.cells[nx].innerText.trim();
+				var nm = parseInt(clx);
+				if(nm > 0) {
+					tr.setAttribute("style", "background: #FFB3B3");
+				}
+			}
+		}
+	}
+
+	//行チェックマーク付与
+	line_checker_add() {
+		var cr_tab = this.which_tab_selected();
+		if(cr_tab == "lst") {
+			this.add_js();
+			this.add_line_handle();
+		}
+	}
+}
+
 const util = new libraPlusUtil();
+const main_ut = new mainPageUtil();
 
 const run_js = function() {
     var src = prompt("実行したいJavascriptコードを入力または貼り付けてください");
@@ -604,8 +723,23 @@ browser.runtime.onMessage.addListener((message) => {
 		case "run-js":
 			run_js();
 			break;
+		case "do-ok":
+			util.force_survey_ok();
+			break;
+		case "do-na":
+			util.force_survey_na();
+			break;
 		case "rs-util":
 			rs_util();
+			break;
+		case "fail-line":
+			main_ut.fail_line_color();
+			break;
+		case "srch-line":
+			main_ut.search_line();
+			break;
+		case "chk-line":
+			main_ut.line_checker_add();
 			break;
     }
 });

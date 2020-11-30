@@ -76,11 +76,61 @@ document.getElementById("run-js").addEventListener("click", (e) => {
     .catch(console.error("error"));
 });
 
+document.getElementById("do-ok").addEventListener("click", (e) => {
+    browser.tabs.query({active: true, currentWindow: true})
+    .then((tabs) => {
+        browser.tabs.sendMessage(tabs[0].id, {
+            command: "do-ok"
+        });
+    })
+    .catch(console.error("error"));
+});
+
+document.getElementById("do-na").addEventListener("click", (e) => {
+    browser.tabs.query({active: true, currentWindow: true})
+    .then((tabs) => {
+        browser.tabs.sendMessage(tabs[0].id, {
+            command: "do-na"
+        });
+    })
+    .catch(console.error("error"));
+});
+
 document.getElementById("rs-util").addEventListener("click", (e) => {
     browser.tabs.query({active: true, currentWindow: true})
     .then((tabs) => {
         browser.tabs.sendMessage(tabs[0].id, {
             command: "rs-util"
+        });
+    })
+    .catch(console.error("error"));
+});
+
+document.getElementById("fail-line").addEventListener("click", (e) => {
+    browser.tabs.query({active: true, currentWindow: true})
+    .then((tabs) => {
+        browser.tabs.sendMessage(tabs[0].id, {
+            command: "fail-line"
+        });
+    })
+    .catch(console.error("error"));
+});
+
+document.getElementById("srch-line").addEventListener("click", (e) => {
+    browser.tabs.query({active: true, currentWindow: true})
+    .then((tabs) => {
+        browser.tabs.sendMessage(tabs[0].id, {
+            command: "srch-line"
+        });
+    })
+    .catch(console.error("error"));
+});
+
+document.getElementById("chk-line").addEventListener("click", (e) => {
+    browser.tabs.query({active: true, currentWindow: true})
+    .then((tabs) => {
+        browser.tabs.sendMessage(tabs[0].id, {
+            command: "chk-line"
         });
     })
     .catch(console.error("error"));
