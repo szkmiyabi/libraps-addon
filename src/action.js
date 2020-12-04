@@ -22,10 +22,10 @@ class libraPlusUtil {
 		};
 		this.tab_sp = "<bkmk:tab>";
 		this.br_sp = "<bkmk:br>";
-        this.data_tab_sp = "<bkmk:data:tab>";
-        this.data_br_sp = "<bkmk:data:br>";
-        this.status_page_url = "/libraplus/status/list/";
-        this.url_select = document.querySelector('#select_urlno');
+		this.data_tab_sp = "<bkmk:data:tab>";
+		this.data_br_sp = "<bkmk:data:br>";
+		this.status_page_url = "/libraplus/status/list/";
+		this.url_select = document.querySelector('#select_urlno');
 		this.owner_window = window.opener;
 	}
 
@@ -58,10 +58,10 @@ class libraPlusUtil {
 
 
 	text_clean(str) {
-	    str=str.replace(/^ +/m,"");
-	    str=str.replace(/\t+/m,"");
-	    str=str.replace(/(\r\n|\r|\n)/g,""); 
-	    return str;
+		str=str.replace(/^ +/m,"");
+		str=str.replace(/\t+/m,"");
+		str=str.replace(/(\r\n|\r|\n)/g,""); 
+		return str;
 	}
 
 	br_encode(str) {
@@ -91,11 +91,11 @@ class libraPlusUtil {
 		else return false;
 	}
     
-    event_ignite(obj, type) {
-        var event = document.createEvent("HTMLEvents");
-        event.initEvent(type, true, false);
-        obj.dispatchEvent(event);
-    }
+	event_ignite(obj, type) {
+		var event = document.createEvent("HTMLEvents");
+		event.initEvent(type, true, false);
+		obj.dispatchEvent(event);
+	}
 
 	get_url_string(str) {
 		var pt = new RegExp(/http.*\/\/.*/);
@@ -518,26 +518,26 @@ class libraPlusUtil {
 	/*-----------------------------------------
 		ユーティリティ的機能のメソッド一式
 	-------------------------------------------*/
-    svpage_next() {
-        var idx = this.url_select.selectedIndex;
-        idx++;
-        if(idx == this.url_select.options.length) {
-            alert("これ以上進めません!");
-            return;
-        }
-        this.url_select.selectedIndex = idx;
-        this.event_ignite(this.url_select, "change");
-    }
+	svpage_next() {
+		var idx = this.url_select.selectedIndex;
+		idx++;
+		if(idx == this.url_select.options.length) {
+			alert("これ以上進めません!");
+			return;
+		}
+		this.url_select.selectedIndex = idx;
+		this.event_ignite(this.url_select, "change");
+	}
 
-    svpage_prev() {
-        var idx = this.url_select.selectedIndex;
-        idx--;
-        if(idx < 0) {
-            alert("これ以上戻れません!");
-            return;
-        }
-        this.url_select.selectedIndex = idx;
-        this.event_ignite(this.url_select, "change");
+	svpage_prev() {
+		var idx = this.url_select.selectedIndex;
+		idx--;
+		if(idx < 0) {
+			alert("これ以上戻れません!");
+			return;
+		}
+		this.url_select.selectedIndex = idx;
+		this.event_ignite(this.url_select, "change");
 	}
 
 }
@@ -578,6 +578,7 @@ class mainPageUtil {
 		return ret;
 	}
 
+	//行色付けのscriptタグ生成挿入
 	add_js() {
 		if(document.querySelector("#libraps-addon-bkmk-script") != null) return;
 		var scr = document.createElement("script");
@@ -602,6 +603,7 @@ class mainPageUtil {
 		document.getElementsByTagName("body").item(0).appendChild(scr);
 	}
 
+	//行色付けイベントハンドラ設定
 	add_line_handle() {
 		var trs = this.sv_lst_tbl.rows;
 		for(var i=0; i<trs.length; i++) {
@@ -627,7 +629,6 @@ class mainPageUtil {
 			var inhtml = td.innerHTML;
 			if(pt.test(inhtml)) tr.setAttribute("style", "background: #99FF99;");
 		}
-
 	}
 
 	//不適合(いいえ)行色付け
@@ -657,14 +658,17 @@ class mainPageUtil {
 	}
 }
 
+//クラスのインスタンス
 const util = new libraPlusUtil();
 const main_ut = new mainPageUtil();
 
+//JavaScript実行関数
 const run_js = function() {
-    var src = prompt("実行したいJavascriptコードを入力または貼り付けてください");
-    eval("{" + src + "}");
+	var src = prompt("実行したいJavascriptコードを入力または貼り付けてください");
+	eval("{" + src + "}");
 };
 
+//進捗管理ユーティリティの関数
 const rs_util = function() {
 	var tbl = document.querySelector('#myTable');
 	var trs = tbl.rows;
@@ -699,20 +703,20 @@ const rs_util = function() {
 
 browser.runtime.onMessage.addListener((message) => {
 
-    let cmd = message.command;
+	let cmd = message.command;
 
-    switch(cmd) {
-        case "next":
-            util.svpage_next();
-            break;
-        case "prev":
-            util.svpage_prev();
-            break;
-        case "single-cp":
-            util.survey_single_copy();
-            break;
-        case "single-ps":
-            util.survey_single_paste();
+	switch(cmd) {
+		case "next":
+			util.svpage_next();
+			break;
+		case "prev":
+			util.svpage_prev();
+			break;
+		case "single-cp":
+			util.survey_single_copy();
+			break;
+		case "single-ps":
+			util.survey_single_paste();
 			break;
 		case "all-cp":
 			util.survey_all_copy();
@@ -741,5 +745,5 @@ browser.runtime.onMessage.addListener((message) => {
 		case "chk-line":
 			main_ut.line_checker_add();
 			break;
-    }
+	}
 });
