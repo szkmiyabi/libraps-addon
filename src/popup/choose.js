@@ -96,41 +96,21 @@ document.getElementById("do-na").addEventListener("click", (e) => {
     .catch(console.error("error"));
 });
 
-document.getElementById("rs-util").addEventListener("click", (e) => {
+document.getElementById("rs-color-util").addEventListener("click", (e) => {
     browser.tabs.query({active: true, currentWindow: true})
     .then((tabs) => {
         browser.tabs.sendMessage(tabs[0].id, {
-            command: "rs-util"
+            command: "rs-color-util"
         });
     })
     .catch(console.error("error"));
 });
 
-document.getElementById("fail-line").addEventListener("click", (e) => {
+document.getElementById("sv-color-util").addEventListener("click", (e) => {
     browser.tabs.query({active: true, currentWindow: true})
     .then((tabs) => {
         browser.tabs.sendMessage(tabs[0].id, {
-            command: "fail-line"
-        });
-    })
-    .catch(console.error("error"));
-});
-
-document.getElementById("srch-line").addEventListener("click", (e) => {
-    browser.tabs.query({active: true, currentWindow: true})
-    .then((tabs) => {
-        browser.tabs.sendMessage(tabs[0].id, {
-            command: "srch-line"
-        });
-    })
-    .catch(console.error("error"));
-});
-
-document.getElementById("chk-line").addEventListener("click", (e) => {
-    browser.tabs.query({active: true, currentWindow: true})
-    .then((tabs) => {
-        browser.tabs.sendMessage(tabs[0].id, {
-            command: "chk-line"
+            command: "sv-color-util"
         });
     })
     .catch(console.error("error"));

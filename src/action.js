@@ -542,125 +542,8 @@ class libraPlusUtil {
 
 }
 
-/* -------------------------------------------------
- * 検査メインページに関するクラス
- --------------------------------------------------*/
-class mainPageUtil {
-	//コンストラクタ
-	constructor() {
-		this.v_tab = document.querySelector("#tabs");
-		this.sv_lst_tbl = document.querySelector("#table-chkpoint");
-		this.sv_obj_tbl = document.querySelector("#table-inspect");
-	}
-
-	//現在選択されているタブ
-	which_tab_selected() {
-		var ret = "";
-		var cn = null;
-		var wrap_lines = this.v_tab.getElementsByTagName("ul")[0].getElementsByTagName("li");
-		for(var i=0; i<wrap_lines.length; i++) {
-			var at = wrap_lines[i].getElementsByTagName("a")[0];
-			var cs = at.getAttribute("class");
-			if(new RegExp(/active/).test(cs)) {
-				cn = i;
-				break;
-			}
-		}
-		if(cn == null) return;
-		switch(cn) {
-			case 2:
-				ret = "lst";
-				break;
-			default:
-				ret = "any";
-				break;
-		}
-		return ret;
-	}
-
-	//行色付けのscriptタグ生成挿入
-	add_js() {
-		if(document.querySelector("#libraps-addon-bkmk-script") != null) return;
-		var scr = document.createElement("script");
-		scr.id = "libraps-addon-bkmk-script";
-		var scrtxt = "";
-		scrtxt += 'function change_line_color() {';
-		scrtxt += 'var e = (window.event) ? window.event : arguments.callee.caller.arguments[0];';
-		scrtxt += 'var me = e.target || e.srcElement;';
-		scrtxt += 'var tr = me.parentNode.parentNode;';
-		scrtxt += 'var tds = tr.getElementsByTagName("td");';
-		scrtxt += 'for(var i=0; i<tds.length; i++) {';
-		scrtxt += 'var cell = tds.item(i);';
-		scrtxt += 'if(cell.getAttribute("style") === null){';
-		scrtxt += 'var csstxt = "background: #FF8000;";';
-		scrtxt += 'cell.setAttribute("style", csstxt);';
-		scrtxt += '} else {';
-		scrtxt += 'cell.removeAttribute("style");';
-		scrtxt += '}';
-		scrtxt += '}';
-		scrtxt += '}';
-		scr.textContent = scrtxt;
-		document.getElementsByTagName("body").item(0).appendChild(scr);
-	}
-
-	//行色付けイベントハンドラ設定
-	add_line_handle() {
-		var trs = this.sv_lst_tbl.rows;
-		for(var i=0; i<trs.length; i++) {
-			if(i < 1) continue;
-			var tr = trs.item(i);
-			var td = tr.cells.item(0);
-			var inhtml = td.innerHTML;
-			var new_inhtml = '<input type="checkbox" onclick="change_line_color()">' + inhtml;
-			td.innerHTML = new_inhtml;
-		}
-	}
-
-	//検索して行色付け
-	search_line() {
-		var n = 1;
-		var txt = prompt("検索キーワードを入れてください。");
-		var pt = new RegExp("" + txt + "");
-		var trs = this.sv_lst_tbl.rows;
-		for(var i=0; i<trs.length; i++) {
-			if(i < 1) continue;
-			var tr = trs.item(i);
-			var td = tr.cells.item(n);
-			var inhtml = td.innerHTML;
-			if(pt.test(inhtml)) tr.setAttribute("style", "background: #99FF99;");
-		}
-	}
-
-	//不適合(いいえ)行色付け
-	fail_line_color() {
-		var cr_tab = this.which_tab_selected();
-		if(cr_tab == "lst") {
-			var nx = 5;
-			var rows = this.sv_lst_tbl.rows;
-			for(var i=1; i<rows.length; i++) {
-				var tr = rows[i];
-				var clx = tr.cells[nx].innerText.trim();
-				var nm = parseInt(clx);
-				if(nm > 0) {
-					tr.setAttribute("style", "background: #FFB3B3");
-				}
-			}
-		}
-	}
-
-	//行チェックマーク付与
-	line_checker_add() {
-		var cr_tab = this.which_tab_selected();
-		if(cr_tab == "lst") {
-			this.add_js();
-			this.add_line_handle();
-		}
-	}
-}
-
 //クラスのインスタンス
 const util = new libraPlusUtil();
-const main_ut = new mainPageUtil();
 
 //JavaScript実行関数
 const run_js = function() {
@@ -668,36 +551,201 @@ const run_js = function() {
 	eval("{" + src + "}");
 };
 
-//進捗管理ユーティリティの関数
-const rs_util = function() {
-	var tbl = document.querySelector('#myTable');
-	var trs = tbl.rows;
-	for(var i=2; i<trs.length; i++) {
-		var tr = trs.item(i);
-		var src = tr.cells.item(0).innerHTML;
-		var status = tr.cells.item(2).innerHTML.trim();
-		if(status != "100%") tr.setAttribute("style", "background-color: yellow;");
-		var code = `
-			javascript:(function(){
-				var svpage_url_base = "http://jis2.infocreate.co.jp/libraplus/inspect/start/index/";
-				var owner_window = window.opener;
-				var _current_svpage_siteno = function() {
-					var sl = document.getElementById("siteno");
-					var idx = sl.selectedIndex;
-					var cr_text = sl.getElementsByTagName("option")[idx].innerHTML;
-					var pt = new RegExp(/(\\[)(.+?)(\\])/);
-					return cr_text.match(pt)[2];
-				};
-				var _pagenm_encode= function(str) {
-					var pxpt = new RegExp(/([a-zA-Z\\-]+)([1-9]*)([0-9]+)/);
-					return parseInt(str.match(pxpt)[3]);
-				};
-				var siteno = _current_svpage_siteno();
-				var pageid = _pagenm_encode("${src}");
-				owner_window.open(svpage_url_base + "/" + siteno + "/" + pageid + "/1/page");
-			})();
-		`;
-		tr.cells.item(0).innerHTML = `<a onclick='${code}' style="text-decoration:underline;">` + src + `</a>`;
+//進捗管理行列色付ユーティリティの関数
+const rs_color_util = function() {
+	var status_tbl = document.getElementById("myTable");
+	add_js = function() {
+		if(document.querySelector("#libraps-status-page-util-addjs") != null) return;
+		var scr = document.createElement("script");
+		scr.id = "libraps-status-page-util-addjs";
+		var scrtxt = "";
+		scrtxt += 'function add_mark(num) {';
+		scrtxt += 'var trs = document.getElementById("myTable").rows;';
+		scrtxt += 'for(var i=0; i<trs.length; i++) {';
+		scrtxt += 'if(i < 2) continue;';
+		scrtxt += 'var tr = trs.item(i);';
+		scrtxt += 'for(var j=0; j<tr.cells.length; j++) {';
+		scrtxt += 'if(j < 2) continue;';
+		scrtxt += 'var cls = tr.cells.item(j);';
+		scrtxt += 'if(j == num) {';
+		scrtxt += 'if(cls.getAttribute("style") === null) {';
+		scrtxt += 'cls.setAttribute("style", "background:#FCB829");';
+		scrtxt += '} else {';
+		scrtxt += 'cls.removeAttribute("style");';
+		scrtxt += '}';
+		scrtxt += 'break;';
+		scrtxt += '}';
+		scrtxt += '}';
+		scrtxt += '}';
+		scrtxt += '}';
+
+		scrtxt += 'function add_row_mark(num) {';
+		scrtxt += 'var trs = document.getElementById("myTable").rows;';
+		scrtxt += 'for(var i=2; i<trs.length; i++) {';
+		scrtxt += 'var tr = trs.item(i);';
+		scrtxt += 'for(var j=0; j<tr.cells.length; j++) {';
+		scrtxt += 'var cls = tr.cells.item(j);';
+		scrtxt += 'if(i == num) {';
+		scrtxt += 'if(tr.getAttribute("style") === null) {';
+		scrtxt += 'tr.setAttribute("style", "background:#FCB829");';
+		scrtxt += '} else {';
+		scrtxt += 'tr.removeAttribute("style");';
+		scrtxt += '}';
+		scrtxt += 'break;';
+		scrtxt += '}';
+		scrtxt += '}';
+		scrtxt += '}';
+		scrtxt += '}';
+		scr.textContent = scrtxt;
+		document.getElementsByTagName("body").item(0).appendChild(scr);
+	}
+	add_col_handle = function() {
+			var trs = status_tbl.rows;
+			var tr = trs.item(1);
+			for(var j=0; j<tr.cells.length; j++) {
+				var cls = tr.cells.item(j);
+				var clstxt = cls.innerHTML;
+				clstxt = '<a href="javascript:void(0)" onclick="add_mark(' + (j + 3) + ');return false;" style="text-decoration:none;">' + clstxt + "</a>";
+				cls.outerHTML = `<th class="text-nowrap">`+clstxt+`</th>`;
+			}
+	}
+	add_row_handle = function() {
+		var trs = status_tbl.rows;
+		for(var i=2; i<trs.length; i++) {
+			var tr = trs.item(i);
+			var cls = tr.cells.item(0);
+			var clstxt = cls.innerHTML;
+			clstxt = '<a href="javascript:void(0)" onclick="add_row_mark(' + (i) + ');return false;" style="text-decoration:none;">' + clstxt + "</a>";
+			cls.outerHTML = `<th class="text-nowrap">`+clstxt+`</th>`;
+		}
+	}
+	add_js();
+	add_col_handle();
+	add_row_handle();
+};
+
+//判定色付ユーティリティの関数
+const sv_color_util = function() {
+	var vmode = function() {
+		var cr = location.href;
+		if(new RegExp(/\/inspect\/chkpoint\/dsp\//).test(cr)) return "disp";
+		else if(new RegExp(/\/status\/detail\//).test(cr)) return "status";
+		else if(new RegExp(/\/inspect\/start\//).test(cr)) return "checkpoint"
+	};
+	if(vmode() === "disp") {
+		var ds_tbl = document.getElementsByTagName("table")[0];
+		var trs = ds_tbl.rows;
+		for(var i=1; i<trs.length; i++) {
+			var tr = trs.item(i);
+			for(var j=0; j<tr.cells.length; j++) {
+				var cls = tr.cells.item(j);
+				var clstxt = cls.innerHTML.trim();
+				var colorcode = "";
+				switch(clstxt) {
+					case "はい":
+						colorcode = "#89FFFF";
+						break;
+					case "いいえ":
+						colorcode = "#FFB3B3";
+						break;
+					case "なし":
+						colorcode = "#DDDDDD";
+						break;
+					case "はい(注記)":
+						colorcode = "#99FF99";
+						break;
+					default:
+						colorcode = "#ffffff";
+						break;
+				}
+				cls.setAttribute("style", "background:" + colorcode + ";");
+			}
+		}
+	} else if(vmode() === "status") {
+		var rs_tbl_pg = document.getElementById("tabs-page").getElementsByTagName("table")[0];
+		var trs = rs_tbl_pg.rows;
+		for(var i=1; i<trs.length; i++) {
+			var tr = trs.item(i);
+			for(var j=0; j<tr.cells.length; j++) {
+				var cls = tr.cells.item(j);
+				var clstxt = cls.innerHTML.trim();
+				var colorcode = "";
+				switch(clstxt) {
+					case "はい":
+						colorcode = "#89FFFF";
+						break;
+					case "いいえ":
+						colorcode = "#FFB3B3";
+						break;
+					case "なし":
+						colorcode = "#DDDDDD";
+						break;
+					case "はい(注記)":
+						colorcode = "#99FF99";
+						break;
+					default:
+						colorcode = "#ffffff";
+						break;
+				}
+				cls.setAttribute("style", "background:" + colorcode + ";");
+			}
+		}
+		var rs_tbl_chk = document.getElementById("tabs-chkpoint").getElementsByTagName("table")[0];
+		var trs = rs_tbl_chk.rows;
+		for(var i=1; i<trs.length; i++) {
+			var tr = trs.item(i);
+			for(var j=0; j<tr.cells.length; j++) {
+				var cls = tr.cells.item(j);
+				var clstxt = cls.innerHTML.trim();
+				var colorcode = "";
+				switch(clstxt) {
+					case "はい":
+						colorcode = "#89FFFF";
+						break;
+					case "いいえ":
+						colorcode = "#FFB3B3";
+						break;
+					case "なし":
+						colorcode = "#DDDDDD";
+						break;
+					case "はい(注記)":
+						colorcode = "#99FF99";
+						break;
+					default:
+						colorcode = "#ffffff";
+						break;
+				}
+				cls.setAttribute("style", "background:" + colorcode + ";");
+			}
+		}
+	} else if(vmode() === "checkpoint") {
+		var checkpoint_tbl = document.getElementById("table-chkpoint");
+		var trs = checkpoint_tbl.rows;
+		for(var i=1; i<trs.length; i++) {
+			var tr = trs.item(i);
+			for(var j=2; j<tr.cells.length; j++) {
+				var cls = tr.cells.item(j);
+				switch(j) {
+					case 2:
+						cls.setAttribute("style", "background:#FCB829;");
+						break;
+					case 4:
+						cls.setAttribute("style", "background:#89FFFF;");
+						break;
+					case 5:
+						var clsnm = parseInt(cls.getElementsByTagName("span")[0].innerHTML.trim());
+						if(clsnm > 0) {
+							cls.setAttribute("style", "background:#FA474B;");
+						} else {
+							cls.setAttribute("style", "background:#FFB3B3;");
+						}
+						break;
+					case 6:
+						cls.setAttribute("style", "background:#DDDDDD;");
+						break;
+				}
+			}
+		}
 	}
 };
 
@@ -733,17 +781,11 @@ browser.runtime.onMessage.addListener((message) => {
 		case "do-na":
 			util.force_survey_na();
 			break;
-		case "rs-util":
-			rs_util();
+		case "rs-color-util":
+			rs_color_util();
 			break;
-		case "fail-line":
-			main_ut.fail_line_color();
-			break;
-		case "srch-line":
-			main_ut.search_line();
-			break;
-		case "chk-line":
-			main_ut.line_checker_add();
+		case "sv-color-util":
+			sv_color_util();
 			break;
 	}
 });
