@@ -540,6 +540,30 @@ class libraPlusUtil {
 		this.event_ignite(this.url_select, "change");
 	}
 
+	svpage_open() {
+		var burl = "";
+		var select = null;
+		if(this.have_opener())
+			select = window.opener.document.querySelector('#select_urlno');
+		else
+			select = this.url_select;
+		if(typeof select == "undefined" || select == null) {
+			alert("この画面からは実行できません");
+			return;
+		}
+		var opts = select.getElementsByTagName("option");
+		var idx = select.selectedIndex;
+		for(var i=0; i<opts.length; i++) {
+			var op = opts[i];
+			if(i == idx) {
+				burl = op.text;
+				break;
+			}
+		}
+		burl = this.get_url_string(burl);
+		window.open(burl, "_blank");
+	}
+
 }
 
 //クラスのインスタンス
@@ -619,9 +643,28 @@ const rs_color_util = function() {
 			cls.outerHTML = `<th class="text-nowrap">`+clstxt+`</th>`;
 		}
 	}
+	add_br_handle = function() {
+		var trs = status_tbl.rows;
+		for(var i=2; i<(trs.length-1); i++) {
+			var tr = trs.item(i);
+			for(var j=3; j<(tr.cells.length - 1); j++) {
+				var cls = tr.cells.item(j);
+				var atg = cls.getElementsByTagName("a")[0];
+				var href = atg.getAttribute("href");
+				var inscr = `
+					javascript:(function(){
+						var opt = 'width=1000,height=600,left=500,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes';
+						window.open('${href}', null, opt);
+					})();`;
+				atg.setAttribute("onclick", inscr);
+				atg.setAttribute("href", "#")
+			}
+		}
+	}
 	add_js();
 	add_col_handle();
 	add_row_handle();
+	add_br_handle();
 };
 
 //判定色付ユーティリティの関数
@@ -754,6 +797,9 @@ browser.runtime.onMessage.addListener((message) => {
 	let cmd = message.command;
 
 	switch(cmd) {
+		case "browse":
+			util.svpage_open();
+			break;
 		case "next":
 			util.svpage_next();
 			break;

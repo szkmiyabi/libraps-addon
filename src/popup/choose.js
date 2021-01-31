@@ -58,6 +58,16 @@ document.getElementById("all-ps").addEventListener("click", (e) => {
     .catch(console.error("error"));
 });
 
+document.getElementById("browse").addEventListener("click", (e) => {
+    browser.tabs.query({active: true, currentWindow: true})
+    .then((tabs) => {
+        browser.tabs.sendMessage(tabs[0].id, {
+            command: "browse"
+        });
+    })
+    .catch(console.error("error"));
+});
+
 document.getElementById("tab-cp").addEventListener("click", (e) => {
     browser.tabs.query({active: true, currentWindow: true})
     .then((tabs) => {
