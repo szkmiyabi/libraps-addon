@@ -106,11 +106,11 @@ document.getElementById("do-na").addEventListener("click", (e) => {
     .catch(console.error("error"));
 });
 
-document.getElementById("rs-color-util").addEventListener("click", (e) => {
+document.getElementById("rep-color-util").addEventListener("click", (e) => {
     browser.tabs.query({active: true, currentWindow: true})
     .then((tabs) => {
         browser.tabs.sendMessage(tabs[0].id, {
-            command: "rs-color-util"
+            command: "rep-color-util"
         });
     })
     .catch(console.error("error"));
@@ -121,6 +121,16 @@ document.getElementById("sv-color-util").addEventListener("click", (e) => {
     .then((tabs) => {
         browser.tabs.sendMessage(tabs[0].id, {
             command: "sv-color-util"
+        });
+    })
+    .catch(console.error("error"));
+});
+
+document.getElementById("w3c-repo-util").addEventListener("click", (e) => {
+    browser.tabs.query({active: true, currentWindow: true})
+    .then((tabs) => {
+        browser.tabs.sendMessage(tabs[0].id, {
+            command: "w3c-repo-util"
         });
     })
     .catch(console.error("error"));

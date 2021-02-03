@@ -576,7 +576,7 @@ const run_js = function() {
 };
 
 //進捗管理行列色付ユーティリティの関数
-const rs_color_util = function() {
+const rep_color_util = function() {
 	var status_tbl = document.getElementById("myTable");
 	add_js = function() {
 		if(document.querySelector("#libraps-status-page-util-addjs") != null) return;
@@ -653,7 +653,7 @@ const rs_color_util = function() {
 				var href = atg.getAttribute("href");
 				var inscr = `
 					javascript:(function(){
-						var opt = 'width=1000,height=600,left=500,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes';
+						var opt = 'width=1280,height=740,left=500,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes';
 						window.open('${href}', null, opt);
 					})();`;
 				atg.setAttribute("onclick", inscr);
@@ -792,6 +792,74 @@ const sv_color_util = function() {
 	}
 };
 
+//W3Cバリデートレポートユーティリティ関数
+const w3c_repo_util = function() {
+	try {
+		var str = "";
+		var crurl = location.href;
+		if(crurl.indexOf(".org/nu/") > 0) {
+			var rep_wrapper = document.getElementById("results");
+			var errcnt = 0;
+			var linept = new RegExp(/(From|At)( line )([0-9]+?)(,)/);
+			var inwrap = rep_wrapper.getElementsByTagName("ol")[0];
+			var rows = inwrap.getElementsByTagName("li");
+			for(var i=0; i<rows.length; i++) {
+				var row = rows.item(i);
+				var atr = row.getAttribute("class");
+				if(atr === "error") {
+					errcnt++;
+					var emsg = row.getElementsByTagName("p")[0].getElementsByTagName("span")[0].innerText;
+					var eline = row.getElementsByClassName("location")[0].getElementsByTagName("a")[0].innerText;
+					var elinestr = "";
+					if(linept.test(eline)) {
+						elinestr = eline.match(linept)[3];
+					}
+					elinestr += "行目";
+					var esrc = row.getElementsByClassName("extract")[0].getElementsByTagName("code")[0].innerText;
+					str += elinestr + "\n" + emsg + "\n\n" + esrc + "\n\n\n";
+				}
+			}
+		} else {
+			var rep_wrapper = document.getElementById("error_loop");
+			var errcnt = 0;
+			var linept = new RegExp(/(Line )([0-9]+?)(,)/);
+			var rows = rep_wrapper.getElementsByTagName("li");
+			for(var i=0; i<rows.length; i++) {
+				var row = rows.item(i);
+				var atr = row.getAttribute("class");
+				if(atr === "msg_err") {
+					errcnt++;
+					var eline = row.getElementsByTagName("em")[0].innerText;
+					var elinestr = "";
+					if(linept.test(eline)) {
+						elinestr = eline.match(linept)[2];
+					}
+					elinestr += "行目";
+					var emsg = row.getElementsByClassName("msg")[0].innerText;
+					var esrc = row.getElementsByTagName("pre")[0].getElementsByTagName("code")[0].innerText;
+					str += elinestr + "\n" + emsg + "\n\n" + esrc + "\n\n\n";
+				}
+			}
+		}
+		show_bkmk_dialog("presv-addon-w3c-ui", "w3c整形（W3Cバリデート結果整形表示）", str);
+		function show_bkmk_dialog(id, title, str) {
+			var divcss = 'font-family:\'メイリオ\',sans-serif;font-size:90%;padding:5px;position:absolute;top:0;left:0;background:#fff;z-index:2999;width:760px;height:390px;box-shadow: 2px 2px 4px gray;';
+			var tacss = ' style=\'width:750px; height: 355px; border: none;\'';
+			var btnfunc = 'this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);';
+			var panel_start = '<div style=\'padding:3px;background:#000;color:#fff;height:19px;\'><span style=\'float:left;\'><strong>' + title + '</strong></span><a style=\'float:right;\' onclick=\"' + btnfunc + '\">閉じる' + '</a></div><textarea' + tacss + '>';
+			var panel_end = '</textarea>';
+			var elm = document.createElement("div");
+			elm.id = id;
+			elm.style.cssText = divcss;
+			elm.innerHTML = panel_start + str + panel_end;
+			document.getElementsByTagName("body")[0].appendChild(elm);
+			scrollTo(0, 0);
+		}
+	} catch(e) {
+		alert("実行時エラーです。W3Cバリデータの結果ページでない、あるいはバリデータオプションでソースコード表示のチェックがOFFになっているかもしれません。");
+	}
+};
+
 browser.runtime.onMessage.addListener((message) => {
 
 	let cmd = message.command;
@@ -827,11 +895,14 @@ browser.runtime.onMessage.addListener((message) => {
 		case "do-na":
 			util.force_survey_na();
 			break;
-		case "rs-color-util":
-			rs_color_util();
+		case "rep-color-util":
+			rep_color_util();
 			break;
 		case "sv-color-util":
 			sv_color_util();
+			break;
+		case "w3c-repo-util":
+			w3c_repo_util();
 			break;
 	}
 });
