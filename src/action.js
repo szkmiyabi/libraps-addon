@@ -643,28 +643,9 @@ const rep_color_util = function() {
 			cls.outerHTML = `<th class="text-nowrap">`+clstxt+`</th>`;
 		}
 	}
-	add_br_handle = function() {
-		var trs = status_tbl.rows;
-		for(var i=2; i<(trs.length-1); i++) {
-			var tr = trs.item(i);
-			for(var j=3; j<(tr.cells.length - 1); j++) {
-				var cls = tr.cells.item(j);
-				var atg = cls.getElementsByTagName("a")[0];
-				var href = atg.getAttribute("href");
-				var inscr = `
-					javascript:(function(){
-						var opt = 'width=1280,height=740,left=500,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes';
-						window.open('${href}', null, opt);
-					})();`;
-				atg.setAttribute("onclick", inscr);
-				atg.setAttribute("href", "#")
-			}
-		}
-	}
 	add_js();
 	add_col_handle();
 	add_row_handle();
-	add_br_handle();
 };
 
 //判定色付ユーティリティの関数
