@@ -135,3 +135,13 @@ document.getElementById("w3c-repo-util").addEventListener("click", (e) => {
     })
     .catch(console.error("error"));
 });
+
+document.getElementById("sv-ui-extend").addEventListener("click", (e) => {
+    browser.tabs.query({active: true, currentWindow: true})
+    .then((tabs) => {
+        browser.tabs.sendMessage(tabs[0].id, {
+            command: "sv-ui-extend"
+        });
+    })
+    .catch(console.error("error"));
+});
