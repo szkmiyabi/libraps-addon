@@ -850,6 +850,13 @@ const sv_ui_tool = function() {
 	var srccode = document.querySelector('textarea[id^="updsrc_"]');
 	var disp_btn = document.querySelectorAll('button[id^="btn_dsp_"]');
 	var src_label = document.querySelectorAll('label[for^="src_"]');
+	var svpage_pat = new RegExp(/\/libraplus\/inspect\/chkpoint\//);
+
+	if(!svpage_pat.test(location.href)) {
+		alert("この機能はページビュー、ソースコードビューのアイコン、あるいは検査箇所一覧ビューの検査ボタンクリックして開く画面でしか実行できません！");
+		return;
+	}
+	
 	var get_count = function(element) {
 		var pt = new RegExp(/(_)([0-9]+)/);
 		var idx = element.getAttribute("id");
