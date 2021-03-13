@@ -1091,6 +1091,65 @@ const sv_ui_tool = function() {
 
 };
 
+//画面幅ユーティリティ関数
+const view_size_util = function() {
+	var svpage_pat = new RegExp(/\/libraplus\/inspect\/start\/index\//);
+	var rspage_pat = new RegExp(/\/libraplus\/status\/list\//);
+	var chkp_pat = new RegExp(/\/libraplus\/inspect\/chkpoint\/dsp\//);
+	var rsrs_pat = new RegExp(/\/libraplus\/status\/detail\//);
+	var cr_path = location.href;
+	if(svpage_pat.test(cr_path)) {
+		var view_el = document.querySelector("#tabs");
+		var crwd = view_el.clientWidth;
+		var step = 0;
+		if(crwd < 800) step = 100;
+		else if(crwd < 500) step = 50;
+		else step = 200;
+		var nwwd = crwd -= step;
+		if(nwwd > 250) {
+			view_el.setAttribute("style", `width:${nwwd}px!important;`);
+		} else {
+			view_el.removeAttribute("style");
+		}
+	} else if(rspage_pat.test(cr_path)) {
+		var maxwd = screen.width;
+		var crwd = window.outerWidth;
+		var crht = window.outerHeight;
+		var step = 200;
+		var nwwd = crwd += step;
+		if(nwwd >= maxwd) {
+			window.resizeTo(1000, crht);
+		} else {
+			window.resizeTo(nwwd, crht);
+		}
+	} else if(chkp_pat.test(cr_path)) {
+		var tbl = document.querySelector("table");
+		var ths = tbl.querySelectorAll("th");
+		var thclass = ths[1].getAttribute("class");
+		ths[1].setAttribute("class", thclass.replace(" w-40", ""));
+		var trs = tbl.querySelectorAll("tr");
+		for(var i=1; i<trs.length; i++) {
+			var tr = trs[i];
+			var td = tr.querySelectorAll("td");
+			td[1].setAttribute("class", "break-all");
+			td[3].setAttribute("class", "break-all w-20");
+		}
+	} else if(rsrs_pat.test(cr_path)) {
+		var tb1 = document.querySelector("#status-detail-page");
+		var tb2 = document.querySelector("#tabs-chkpoint");
+		var tbl_sizer = function(el) {
+			var tds = el.querySelectorAll("td.col-md-6.break-all");
+			for(var i=0; i<tds.length; i++) {
+				var td = tds[i];
+				var tdclass = td.getAttribute("class");
+				td.setAttribute("class", tdclass.replace("col-md-6", ""));
+			}
+		};
+		tbl_sizer(tb1);
+		tbl_sizer(tb2);
+	}
+};
+
 browser.runtime.onMessage.addListener((message) => {
 
 	let cmd = message.command;
@@ -1137,6 +1196,9 @@ browser.runtime.onMessage.addListener((message) => {
 			break;
 		case "sv-ui-extend":
 			sv_ui_tool();
+			break;
+		case "view-size-util":
+			view_size_util();
 			break;
 	}
 });
