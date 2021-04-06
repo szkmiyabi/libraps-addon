@@ -106,11 +106,11 @@ document.getElementById("do-na").addEventListener("click", (e) => {
     .catch(console.error("error"));
 });
 
-document.getElementById("rep-color-util").addEventListener("click", (e) => {
+document.getElementById("rep-view-util").addEventListener("click", (e) => {
     browser.tabs.query({active: true, currentWindow: true})
     .then((tabs) => {
         browser.tabs.sendMessage(tabs[0].id, {
-            command: "rep-color-util"
+            command: "rep-view-util"
         });
     })
     .catch(console.error("error"));

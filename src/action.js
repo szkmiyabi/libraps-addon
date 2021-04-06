@@ -576,7 +576,7 @@ const run_js = function() {
 };
 
 //進捗管理行列色付ユーティリティの関数
-const rep_color_util = function() {
+const rep_view_util = function() {
 	var status_tbl = document.getElementById("myTable");
 	add_js = function() {
 		if(document.querySelector("#libraps-status-page-util-addjs") != null) return;
@@ -643,9 +643,35 @@ const rep_color_util = function() {
 			cls.outerHTML = `<th class="text-nowrap">`+clstxt+`</th>`;
 		}
 	}
+	add_br_handle = function() {
+		var trs = status_tbl.rows;
+		for(var i=2; i<(trs.length-1); i++) {
+			var tr = trs.item(i);
+			for(var j=3; j<(tr.cells.length - 1); j++) {
+				var cls = tr.cells.item(j);
+				var atgs = cls.getElementsByTagName("a");
+				if(atgs.length < 1) continue;
+				var atg = cls.getElementsByTagName("a")[0];
+				var href = atg.getAttribute("href");
+				var elm = document.createElement("span");
+				elm.setAttribute("class", "badge badge-pill badge-dark ml-1");
+				elm.innerHTML = `<i class="fas fa-share-square"></i>`;
+				var inscr = `
+					javascript:(function(){
+						var this_w = window;
+						var window_size = "left=" + this_w.outerWidth + ",width=" + this_w.outerHight;
+						var window_option = ",menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes";
+						window.open('${href}', "blank", "LibraPlus Status", window_size+window_option);
+					})();`;
+				elm.setAttribute("onclick", inscr);
+				atg.parentElement.insertBefore(elm, atg.nextSibling);
+			}
+		}
+	}
 	add_js();
 	add_col_handle();
 	add_row_handle();
+	add_br_handle();
 };
 
 //判定色付ユーティリティの関数
@@ -1066,7 +1092,7 @@ const sv_ui_tool = function() {
 		var btn3 = document.querySelector(`#alt_clear_btn_${idx}`);
 		var btn = document.createElement("a");
 		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">非リンク化</span>`;
-		btn.setAttribute("id", `alt_clear_btn_${idx}`);
+		btn.setAttribute("id", `link_clear_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
 		var btn_scr4 = `
 			(function(){
@@ -1079,7 +1105,98 @@ const sv_ui_tool = function() {
 		btn.setAttribute("onclick", btn_scr4);
 		el.parentElement.insertBefore(btn, btn3.nextSibling);
 
+		var btn4 = document.querySelector(`#link_clear_btn_${idx}`);
+		var btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">x囲む</span>`;
+		btn.setAttribute("id", `tag_sand_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		var btn_scr5 = `
+			(function(){
+				var tag = prompt("要素名(strong, span, em, ul, ol, li, dl, dt, dd, p, h, 未入力はstrong)");
+				if(tag=="") tag = "strong";
+				var src = document.querySelector('textarea[id^="updsrc_${idx}"]');
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var posen = src.selectionEnd;
+				var body = sentence.substring(pos, posen);
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(posen, len);
+				sentence = before + "<" + tag + ">" + body + "</" + tag + ">" + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr5);
+		el.parentElement.insertBefore(btn, btn4.nextSibling);
 
+		var btn5 = document.querySelector(`#tag_sand_btn_${idx}`);
+		var btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">x定義</span>`;
+		btn.setAttribute("id", `division_x_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		var btn_scr6 = `
+			(function(){
+				var tag = prompt("要素名(ul, ol, dl, h, p, 未入力はul)");
+				if(tag=="") tag = "ul";
+				var src = document.querySelector('textarea[id^="updsrc_${idx}"]');
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(pos, len);
+				sentence = before + tag + "要素で定義する。" + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr6);
+		el.parentElement.insertBefore(btn, btn5.nextSibling);
+
+		var btn6 = document.querySelector(`#division_x_btn_${idx}`);
+		var btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">x削除</span>`;
+		btn.setAttribute("id", `delete_x_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		var btn_scr7 = `
+			(function(){
+				var tag = prompt("要素名(a, ul, ol, dl, h, p, この, 未入力はa)");
+				if(tag=="") tag = "a";
+				var src = document.querySelector('textarea[id^="updsrc_${idx}"]');
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(pos, len);
+				sentence = before + tag + "要素を削除する。" + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr7);
+		el.parentElement.insertBefore(btn, btn6.nextSibling);
+
+	}
+
+	var actionBar = document.querySelectorAll("div.clearfix.mb-2.mt-2.chkpoint-btn");
+	for(var i=0; i<actionBar.length; i++) {
+		var action_r = actionBar[i];
+		var close_b = action_r.querySelector("button:nth-child(2)");
+		var btn = document.createElement("button");
+		btn.setAttribute("id", `disp_sv_btn_${i}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn.setAttribute("class", "btn btn-outline-primary btn-sm ml-2");
+		btn.innerHTML = `<i class="fas fa-search"></i>表示(登録済検査内容)</button>`;
+		var b_src = `
+			(function(){
+				var crurl = location.href;
+				var this_w = window;
+				var nwurl = crurl.replace(new RegExp(/\\/libraplus\\/inspect\\/chkpoint\\/list\\//), "/libraplus/inspect/chkpoint/dsp/");
+				var window_size = "left=" + this_w.outerWidth + ",width=" + this_w.outerHeight;
+				var window_option = ",menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes";
+				window.open(nwurl, "blank", window_size+window_option);
+				this_w.close();
+			})();
+		`;
+		btn.setAttribute("onclick", b_src);
+		close_b.parentElement.insertBefore(btn, close_b.nextSibling);
 	}
 
 	try {
@@ -1185,8 +1302,8 @@ browser.runtime.onMessage.addListener((message) => {
 		case "do-na":
 			util.force_survey_na();
 			break;
-		case "rep-color-util":
-			rep_color_util();
+		case "rep-view-util":
+			rep_view_util();
 			break;
 		case "sv-color-util":
 			sv_color_util();
