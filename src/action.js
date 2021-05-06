@@ -645,8 +645,13 @@ const rep_view_util = function() {
 	}
 	add_br_handle = function() {
 		var trs = status_tbl.rows;
-		for(var i=2; i<(trs.length-1); i++) {
+		var is_total_row = function(tr) {
+			if(tr.cells[2].innerText.trim()==="合計") return true;
+			else return false;
+		};
+		for(var i=2; i<trs.length; i++) {
 			var tr = trs.item(i);
+			if(is_total_row(tr)) continue;
 			for(var j=3; j<(tr.cells.length - 1); j++) {
 				var cls = tr.cells.item(j);
 				var atgs = cls.getElementsByTagName("a");
