@@ -884,7 +884,7 @@ const sv_ui_tool = function() {
 	var svpage_pat = new RegExp(/\/libraplus\/inspect\/chkpoint\//);
 
 	if(!svpage_pat.test(location.href)) {
-		alert("この機能はページビュー、ソースコードビューのアイコン、あるいは検査箇所一覧ビューの検査ボタンクリックして開く画面でしか実行できません！");
+		alert("実行時エラーです。この機能は、単独検査入力画面（ページV、ソースコードV、検査箇所一覧Vなどで検知アイコンや検査ボタンをクリックして出てくる画面）のみで使用可能です。");
 		return;
 	}
 	
@@ -910,20 +910,20 @@ const sv_ui_tool = function() {
 		btn.setAttribute("id", `comment_clear_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
 		btn.innerHTML = `<span class="badge badge-pill badge-warning m-l-3">クリア</span>`;
-		var btn_scr1 = `
+		var btn_scr = `
 			(function(){
 				document.querySelector('textarea[id^="comment_${idx}"]').value = "";
 			})();
 		`;
-		btn.setAttribute("onclick", btn_scr1);
+		btn.setAttribute("onclick", btn_scr);
 		el.parentElement.insertBefore(btn, el.nextSibling);
 
-		var btn1 = document.querySelector(`#comment_clear_btn_${idx}`);
-		var btn = document.createElement("a");
+		var sr_btn = document.querySelector(`#comment_clear_btn_${idx}`);
+		btn = document.createElement("a");
 		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">改行</span>`;
 		btn.setAttribute("id", `comment_br_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
-		var btn_scr2 = `
+		btn_scr = `
 			(function(){
 				var src = document.querySelector('textarea[id^="comment_${idx}"]');
 				var sentence = src.value;
@@ -935,15 +935,15 @@ const sv_ui_tool = function() {
 				src.value = sentence;
 			})();
 		`;
-		btn.setAttribute("onclick", btn_scr2);
-		el.parentElement.insertBefore(btn, btn1.nextSibling);
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
 
-		var btn2 = document.querySelector(`#comment_br_btn_${idx}`);
-		var btn = document.createElement("a");
+		sr_btn = document.querySelector(`#comment_br_btn_${idx}`);
+		btn = document.createElement("a");
 		btn.innerHTML = `<span class="badge badge-pill badge-primary m-l-3">再検OK</span>`;
 		btn.setAttribute("id", `svupd_ok_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
-		var btn_scr3 = `
+		btn_scr = `
 			(function(){
 				var src = document.querySelector('textarea[id^="comment_${idx}"]');
 				var today = new Date();
@@ -958,15 +958,15 @@ const sv_ui_tool = function() {
 				slc.selectedIndex = 1;
 			})();
 		`;
-		btn.setAttribute("onclick", btn_scr3);
-		el.parentElement.insertBefore(btn, btn2.nextSibling);
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
 
-		var btn3 = document.querySelector(`#svupd_ok_btn_${idx}`);
-		var btn = document.createElement("a");
+		sr_btn = document.querySelector(`#svupd_ok_btn_${idx}`);
+		btn = document.createElement("a");
 		btn.innerHTML = `<span class="badge badge-pill badge-primary m-l-3">差替適合</span>`;
 		btn.setAttribute("id", `svrep_ok_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
-		var btn_scr4 = `
+		btn_scr = `
 			(function(){
 				var src = document.querySelector('textarea[id^="comment_${idx}"]');
 				var today = new Date();
@@ -981,15 +981,15 @@ const sv_ui_tool = function() {
 				slc.selectedIndex = 1;
 			})();
 		`;
-		btn.setAttribute("onclick", btn_scr4);
-		el.parentElement.insertBefore(btn, btn3.nextSibling);
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
 
-		var btn4 = document.querySelector(`#svrep_ok_btn_${idx}`);
-		var btn = document.createElement("a");
+		sr_btn = document.querySelector(`#svrep_ok_btn_${idx}`);
+		btn = document.createElement("a");
 		btn.innerHTML = `<span class="badge badge-pill badge-primary m-l-3">差替注記</span>`;
 		btn.setAttribute("id", `svrep_ok2_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
-		var btn_scr5 = `
+		btn_scr = `
 			(function(){
 				var src = document.querySelector('textarea[id^="comment_${idx}"]');
 				var today = new Date();
@@ -1004,8 +1004,37 @@ const sv_ui_tool = function() {
 				slc.selectedIndex = 2;
 			})();
 		`;
-		btn.setAttribute("onclick", btn_scr5);
-		el.parentElement.insertBefore(btn, btn4.nextSibling);
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#svrep_ok2_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-primary m-l-3">差替(なし)</span>`;
+		btn.setAttribute("id", `svrep_na_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn_scr = `
+			(function(){
+				var src = document.querySelector('textarea[id^="comment_${idx}"]');
+				var src_ta = document.querySelector('textarea[id^="src_${idx}"]');
+				var upd_ta = document.querySelector('textarea[id^="updsrc_${idx}"]');
+				var src_ta_old = src_ta.value;
+				var upd_ta_old = upd_ta.value;
+				var today = new Date();
+				var m = today.getMonth()+1;
+				var d = today.getDate();
+				var addtxt = m + '/' + d + ' 非適用に差替\\r\\n' + '---' + '\\r\\n\\r\\n';
+				var sentence = src.value;
+				sentence = addtxt + sentence;
+				var tr = src.parentElement.parentElement.parentElement.parentElement;
+				var slc = tr.querySelector('select[id^="result_"]');
+				slc.selectedIndex = 4;
+				src.value = sentence;
+				src_ta.value = src_ta_old;
+				upd_ta.value = upd_ta_old;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
 	}
 
 	for(var i=0; i<src_label.length; i++) {
@@ -1015,20 +1044,20 @@ const sv_ui_tool = function() {
 		btn.setAttribute("id", `srccode_clear_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
 		btn.innerHTML = `<span class="badge badge-pill badge-warning m-l-3">クリア</span>`;
-		var btn_scr1 = `
+		var btn_scr = `
 			(function(){
 				document.querySelector('textarea[id^="src_${idx}"]').value = "";
 			})();
 		`;
-		btn.setAttribute("onclick", btn_scr1);
+		btn.setAttribute("onclick", btn_scr);
 		el.parentElement.insertBefore(btn, el.nextSibling);
 
-		var btn1 = document.querySelector(`#srccode_clear_btn_${idx}`);
-		var btn = document.createElement("a");
+		var sr_btn = document.querySelector(`#srccode_clear_btn_${idx}`);
+		btn = document.createElement("a");
 		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">改行</span>`;
 		btn.setAttribute("id", `srccode_br_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
-		var btn_scr2 = `
+		btn_scr = `
 			(function(){
 				var src = document.querySelector('textarea[id^="src_${idx}"]');
 				var sentence = src.value;
@@ -1040,8 +1069,8 @@ const sv_ui_tool = function() {
 				src.value = sentence;
 			})();
 		`;
-		btn.setAttribute("onclick", btn_scr2);
-		el.parentElement.insertBefore(btn, btn1.nextSibling);
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
 	}
 
 	for(var i=0; i<cp_btn.length; i++) {
@@ -1051,20 +1080,20 @@ const sv_ui_tool = function() {
 		btn.setAttribute("id", `updsrc_clear_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
 		btn.innerHTML = `<span class="badge badge-pill badge-warning m-l-3">クリア</span>`;
-		var btn_scr1 = `
+		var btn_scr = `
 			(function(){
 				document.querySelector('textarea[id^="updsrc_${idx}"]').value = "";
 			})();
 		`;
-		btn.setAttribute("onclick", btn_scr1);
+		btn.setAttribute("onclick", btn_scr);
 		el.parentElement.insertBefore(btn, el.nextSibling);
 
-		var btn1 = document.querySelector(`#updsrc_clear_btn_${idx}`);
-		var btn = document.createElement("a");
+		var sr_btn = document.querySelector(`#updsrc_clear_btn_${idx}`);
+		btn = document.createElement("a");
 		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">改行</span>`;
 		btn.setAttribute("id", `updsrc_br_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
-		var btn_scr2 = `
+		btn_scr = `
 			(function(){
 				var src = document.querySelector('textarea[id^="updsrc_${idx}"]');
 				var sentence = src.value;
@@ -1076,30 +1105,30 @@ const sv_ui_tool = function() {
 				src.value = sentence;
 			})();
 		`;
-		btn.setAttribute("onclick", btn_scr2);
-		el.parentElement.insertBefore(btn, btn1.nextSibling);
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
 
-		var btn2 = document.querySelector(`#updsrc_br_btn_${idx}`);
-		var btn = document.createElement("a");
+		sr_btn = document.querySelector(`#updsrc_br_btn_${idx}`);
+		btn = document.createElement("a");
 		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">空alt化</span>`;
 		btn.setAttribute("id", `alt_clear_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
-		var btn_scr3 = `
+		btn_scr = `
 			(function(){
 				var src = document.querySelector('textarea[id^="updsrc_${idx}"]');
 				var srctxt = src.value;
 				src.value = srctxt.replace(/alt=".+?"/mg, 'alt=""');
 			})();
 		`;
-		btn.setAttribute("onclick", btn_scr3);
-		el.parentElement.insertBefore(btn, btn2.nextSibling);
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
 
-		var btn3 = document.querySelector(`#alt_clear_btn_${idx}`);
-		var btn = document.createElement("a");
+		sr_btn = document.querySelector(`#alt_clear_btn_${idx}`);
+		btn = document.createElement("a");
 		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">非リンク化</span>`;
 		btn.setAttribute("id", `link_clear_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
-		var btn_scr4 = `
+		btn_scr = `
 			(function(){
 				var src = document.querySelector('textarea[id^="updsrc_${idx}"]');
 				var srctxt = src.value;
@@ -1107,17 +1136,18 @@ const sv_ui_tool = function() {
 				src.value = srctxt;
 			})();
 		`;
-		btn.setAttribute("onclick", btn_scr4);
-		el.parentElement.insertBefore(btn, btn3.nextSibling);
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
 
-		var btn4 = document.querySelector(`#link_clear_btn_${idx}`);
-		var btn = document.createElement("a");
-		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">x囲む</span>`;
+		sr_btn = document.querySelector(`#link_clear_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">囲む(x要素)</span>`;
 		btn.setAttribute("id", `tag_sand_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
-		var btn_scr5 = `
+		btn_scr = `
 			(function(){
 				var tag = prompt("要素名(strong, span, em, ul, ol, li, dl, dt, dd, p, h, 未入力はstrong)");
+				if(tag === null) return;
 				if(tag=="") tag = "strong";
 				var src = document.querySelector('textarea[id^="updsrc_${idx}"]');
 				var sentence = src.value;
@@ -1131,17 +1161,18 @@ const sv_ui_tool = function() {
 				src.value = sentence;
 			})();
 		`;
-		btn.setAttribute("onclick", btn_scr5);
-		el.parentElement.insertBefore(btn, btn4.nextSibling);
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
 
-		var btn5 = document.querySelector(`#tag_sand_btn_${idx}`);
-		var btn = document.createElement("a");
-		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">x定義</span>`;
+		sr_btn = document.querySelector(`#tag_sand_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">記述指示(x要素)</span>`;
 		btn.setAttribute("id", `division_x_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
-		var btn_scr6 = `
+		btn_scr = `
 			(function(){
 				var tag = prompt("要素名(ul, ol, dl, h, p, 未入力はul)");
+				if(tag === null) return;
 				if(tag=="") tag = "ul";
 				var src = document.querySelector('textarea[id^="updsrc_${idx}"]');
 				var sentence = src.value;
@@ -1153,17 +1184,18 @@ const sv_ui_tool = function() {
 				src.value = sentence;
 			})();
 		`;
-		btn.setAttribute("onclick", btn_scr6);
-		el.parentElement.insertBefore(btn, btn5.nextSibling);
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
 
-		var btn6 = document.querySelector(`#division_x_btn_${idx}`);
-		var btn = document.createElement("a");
-		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">x削除</span>`;
+		sr_btn = document.querySelector(`#division_x_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">削除指示(x要素)</span>`;
 		btn.setAttribute("id", `delete_x_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
-		var btn_scr7 = `
+		btn_scr = `
 			(function(){
 				var tag = prompt("要素名(a, ul, ol, dl, h, p, この, 未入力はa)");
+				if(tag === null) return;
 				if(tag=="") tag = "a";
 				var src = document.querySelector('textarea[id^="updsrc_${idx}"]');
 				var sentence = src.value;
@@ -1175,8 +1207,8 @@ const sv_ui_tool = function() {
 				src.value = sentence;
 			})();
 		`;
-		btn.setAttribute("onclick", btn_scr7);
-		el.parentElement.insertBefore(btn, btn6.nextSibling);
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
 
 	}
 
