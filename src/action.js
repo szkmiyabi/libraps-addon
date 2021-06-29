@@ -1215,7 +1215,7 @@ const sv_ui_tool = function() {
 	var actionBar = document.querySelectorAll("div.clearfix.mb-2.mt-2.chkpoint-btn");
 	for(var i=0; i<actionBar.length; i++) {
 		var action_r = actionBar[i];
-		var close_b = action_r.querySelector("button:nth-child(2)");
+		var close_b = action_r.querySelector("button:nth-child(1)");
 		var btn = document.createElement("button");
 		btn.setAttribute("id", `disp_sv_btn_${i}`);
 		btn.setAttribute("href", `javascript:void(0)`);
