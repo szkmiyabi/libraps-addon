@@ -905,8 +905,8 @@ const sv_ui_tool = function() {
 
 	for(var i=0; i<add_btn.length; i++) {
 		var el = add_btn[i];
-		var btn = document.createElement("a");
 		var idx = get_count(el);
+		var btn = document.createElement("a");
 		btn.setAttribute("id", `comment_clear_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
 		btn.innerHTML = `<span class="badge badge-pill badge-warning m-l-3">クリア</span>`;
@@ -939,6 +939,128 @@ const sv_ui_tool = function() {
 		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
 
 		sr_btn = document.querySelector(`#comment_br_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-danger m-l-3">削除</span>`;
+		btn.setAttribute("id", `comment_del_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn_scr = `
+			(function(){
+				var src = document.querySelector('textarea[id^="comment_${idx}"]');
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var posen = src.selectionEnd;
+				var body = sentence.substring(pos, posen);
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(posen, len);
+				sentence = before + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#comment_del_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-dark m-l-3">数字</span>`;
+		btn.setAttribute("id", `comment_num_insert_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn_scr = `
+			(function(){
+				var src = document.querySelector('textarea[id^="comment_${idx}"]');
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(pos, len);
+				sentence = before + "1." + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#comment_num_insert_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-dark m-l-3">＋ </span>`;
+		btn.setAttribute("id", `comment_num_plus_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn_scr = `
+			(function(){
+				var src = document.querySelector('textarea[id^="comment_${idx}"]');
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var posen = src.selectionEnd;
+				var body = sentence.substring(pos, posen);
+				var num_pt = new RegExp(/[0-9]+/);
+				var num = body.match(num_pt)[0];
+				num++;
+				body = body.replace(num_pt, ""+num);
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(posen, len);
+				sentence = before + body + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#comment_num_plus_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-dark m-l-3">－ </span>`;
+		btn.setAttribute("id", `comment_num_minus_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn_scr = `
+			(function(){
+				var src = document.querySelector('textarea[id^="comment_${idx}"]');
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var posen = src.selectionEnd;
+				var body = sentence.substring(pos, posen);
+				var num_pt = new RegExp(/[0-9]+/);
+				var num = body.match(num_pt)[0];
+				num--;
+				body = body.replace(num_pt, ""+num);
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(posen, len);
+				sentence = before + body + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#comment_num_minus_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-dark m-l-3">「」</span>`;
+		btn.setAttribute("id", `comment_bracket_wrap_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn_scr = `
+			(function(){
+				var src = document.querySelector('textarea[id^="comment_${idx}"]');
+				var brk = "「」";
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var posen = src.selectionEnd;
+				var body = sentence.substring(pos, posen);
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(posen, len);
+				sentence = before + brk.substring(0,1) + body + brk.substring(1,brk.length) + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#comment_bracket_wrap_btn_${idx}`);
+		btn = document.createElement("br");
+		btn.setAttribute("id", `comment_num_minus_btn_after_br_${idx}`);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#comment_num_minus_btn_after_br_${idx}`);
 		btn = document.createElement("a");
 		btn.innerHTML = `<span class="badge badge-pill badge-primary m-l-3">再検OK</span>`;
 		btn.setAttribute("id", `svupd_ok_btn_${idx}`);
@@ -1035,7 +1157,9 @@ const sv_ui_tool = function() {
 		`;
 		btn.setAttribute("onclick", btn_scr);
 		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
 	}
+
 
 	for(var i=0; i<src_label.length; i++) {
 		var el = src_label[i];
@@ -1071,12 +1195,130 @@ const sv_ui_tool = function() {
 		`;
 		btn.setAttribute("onclick", btn_scr);
 		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#srccode_br_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-danger m-l-3">削除</span>`;
+		btn.setAttribute("id", `srccode_del_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn_scr = `
+			(function(){
+				var src = document.querySelector('textarea[id^="src_${idx}"]');
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var posen = src.selectionEnd;
+				var body = sentence.substring(pos, posen);
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(posen, len);
+				sentence = before + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#srccode_del_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-dark m-l-3">数字</span>`;
+		btn.setAttribute("id", `srccode_num_insert_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn_scr = `
+			(function(){
+				var src = document.querySelector('textarea[id^="src_${idx}"]');
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(pos, len);
+				sentence = before + "1." + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#srccode_num_insert_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-dark m-l-3">＋ </span>`;
+		btn.setAttribute("id", `srccode_num_plus_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn_scr = `
+			(function(){
+				var src = document.querySelector('textarea[id^="src_${idx}"]');
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var posen = src.selectionEnd;
+				var body = sentence.substring(pos, posen);
+				var num_pt = new RegExp(/[0-9]+/);
+				var num = body.match(num_pt)[0];
+				num++;
+				body = body.replace(num_pt, ""+num);
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(posen, len);
+				sentence = before + body + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#srccode_num_plus_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-dark m-l-3">－ </span>`;
+		btn.setAttribute("id", `srccode_num_minus_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn_scr = `
+			(function(){
+				var src = document.querySelector('textarea[id^="src_${idx}"]');
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var posen = src.selectionEnd;
+				var body = sentence.substring(pos, posen);
+				var num_pt = new RegExp(/[0-9]+/);
+				var num = body.match(num_pt)[0];
+				num--;
+				body = body.replace(num_pt, ""+num);
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(posen, len);
+				sentence = before + body + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#srccode_num_minus_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-dark m-l-3">「」</span>`;
+		btn.setAttribute("id", `srccode_bracket_wrap_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn_scr = `
+			(function(){
+				var src = document.querySelector('textarea[id^="src_${idx}"]');
+				var brk = "「」";
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var posen = src.selectionEnd;
+				var body = sentence.substring(pos, posen);
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(posen, len);
+				sentence = before + brk.substring(0,1) + body + brk.substring(1,brk.length) + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
 	}
 
 	for(var i=0; i<cp_btn.length; i++) {
 		var el = cp_btn[i];
-		var btn = document.createElement("a");
 		var idx = get_count(el);
+		var btn = document.createElement("a");
 		btn.setAttribute("id", `updsrc_clear_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
 		btn.innerHTML = `<span class="badge badge-pill badge-warning m-l-3">クリア</span>`;
@@ -1110,7 +1352,129 @@ const sv_ui_tool = function() {
 
 		sr_btn = document.querySelector(`#updsrc_br_btn_${idx}`);
 		btn = document.createElement("a");
-		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">空alt化</span>`;
+		btn.innerHTML = `<span class="badge badge-pill badge-danger m-l-3">削除</span>`;
+		btn.setAttribute("id", `updsrc_del_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn_scr = `
+			(function(){
+				var src = document.querySelector('textarea[id^="updsrc_${idx}"]');
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var posen = src.selectionEnd;
+				var body = sentence.substring(pos, posen);
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(posen, len);
+				sentence = before + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#updsrc_del_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-dark m-l-3">数字</span>`;
+		btn.setAttribute("id", `updsrc_num_insert_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn_scr = `
+			(function(){
+				var src = document.querySelector('textarea[id^="updsrc_${idx}"]');
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(pos, len);
+				sentence = before + "1." + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#updsrc_num_insert_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-dark m-l-3">＋ </span>`;
+		btn.setAttribute("id", `updsrc_num_plus_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn_scr = `
+			(function(){
+				var src = document.querySelector('textarea[id^="updsrc_${idx}"]');
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var posen = src.selectionEnd;
+				var body = sentence.substring(pos, posen);
+				var num_pt = new RegExp(/[0-9]+/);
+				var num = body.match(num_pt)[0];
+				num++;
+				body = body.replace(num_pt, ""+num);
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(posen, len);
+				sentence = before + body + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#updsrc_num_plus_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-dark m-l-3">－ </span>`;
+		btn.setAttribute("id", `updsrc_num_minus_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn_scr = `
+			(function(){
+				var src = document.querySelector('textarea[id^="updsrc_${idx}"]');
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var posen = src.selectionEnd;
+				var body = sentence.substring(pos, posen);
+				var num_pt = new RegExp(/[0-9]+/);
+				var num = body.match(num_pt)[0];
+				num--;
+				body = body.replace(num_pt, ""+num);
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(posen, len);
+				sentence = before + body + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#updsrc_num_minus_btn_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-dark m-l-3">「」</span>`;
+		btn.setAttribute("id", `updsrc_bracket_wrap_btn_${idx}`);
+		btn.setAttribute("href", `javascript:void(0)`);
+		btn_scr = `
+			(function(){
+				var src = document.querySelector('textarea[id^="updsrc_${idx}"]');
+				var brk = "「」";
+				var sentence = src.value;
+				var len = sentence.length;
+				var pos = src.selectionStart;
+				var posen = src.selectionEnd;
+				var body = sentence.substring(pos, posen);
+				var before = sentence.substr(0, pos);
+				var after = sentence.substr(posen, len);
+				sentence = before + brk.substring(0,1) + body + brk.substring(1,brk.length) + after;
+				src.value = sentence;
+			})();
+		`;
+		btn.setAttribute("onclick", btn_scr);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+		
+		sr_btn = document.querySelector(`#updsrc_bracket_wrap_btn_${idx}`);
+		btn = document.createElement("br");
+		btn.setAttribute("id", `updsrc_num_minus_btn_after_br_${idx}`);
+		el.parentElement.insertBefore(btn, sr_btn.nextSibling);
+
+		sr_btn = document.querySelector(`#updsrc_num_minus_btn_after_br_${idx}`);
+		btn = document.createElement("a");
+		btn.innerHTML = `<span class="badge badge-pill badge-success m-l-3">空alt化</span>`;
 		btn.setAttribute("id", `alt_clear_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
 		btn_scr = `
@@ -1125,7 +1489,7 @@ const sv_ui_tool = function() {
 
 		sr_btn = document.querySelector(`#alt_clear_btn_${idx}`);
 		btn = document.createElement("a");
-		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">非リンク化</span>`;
+		btn.innerHTML = `<span class="badge badge-pill badge-success m-l-3">非リンク化</span>`;
 		btn.setAttribute("id", `link_clear_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
 		btn_scr = `
@@ -1141,7 +1505,7 @@ const sv_ui_tool = function() {
 
 		sr_btn = document.querySelector(`#link_clear_btn_${idx}`);
 		btn = document.createElement("a");
-		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">囲む(x要素)</span>`;
+		btn.innerHTML = `<span class="badge badge-pill badge-success m-l-3">囲む(x要素)</span>`;
 		btn.setAttribute("id", `tag_sand_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
 		btn_scr = `
@@ -1166,7 +1530,7 @@ const sv_ui_tool = function() {
 
 		sr_btn = document.querySelector(`#tag_sand_btn_${idx}`);
 		btn = document.createElement("a");
-		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">記述指示(x要素)</span>`;
+		btn.innerHTML = `<span class="badge badge-pill badge-success m-l-3">記述指示(x要素)</span>`;
 		btn.setAttribute("id", `division_x_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
 		btn_scr = `
@@ -1189,7 +1553,7 @@ const sv_ui_tool = function() {
 
 		sr_btn = document.querySelector(`#division_x_btn_${idx}`);
 		btn = document.createElement("a");
-		btn.innerHTML = `<span class="badge badge-pill badge-info m-l-3">削除指示(x要素)</span>`;
+		btn.innerHTML = `<span class="badge badge-pill badge-success m-l-3">削除指示(x要素)</span>`;
 		btn.setAttribute("id", `delete_x_btn_${idx}`);
 		btn.setAttribute("href", `javascript:void(0)`);
 		btn_scr = `
