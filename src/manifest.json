@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "libraps-addon",
-    "version": "1.0.2",
+    "version": "1.0.4",
     "description": "LibraPlusの操作を快適にするアドオンです。",
     "icons": {
         "48": "icons/libraps-icon.png"
